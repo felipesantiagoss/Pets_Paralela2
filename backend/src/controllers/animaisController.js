@@ -94,20 +94,16 @@ async function toggleStatus(req, res) {
   }
 }
 
-// Contador global de chegada (vive enquanto o servidor está no ar).
-// Serve para registrar a ORDEM EXATA em que o servidor recebeu cada pedido de
-// adoção — é a peça que explica "quem chegou primeiro" sem depender só da
-// latência medida no cliente.
+// Contador de chegada, usado para registrar a ordem em que o servidor recebe
+// cada requisição de adoção (instrumentação para análise de concorrência).
 let _ordemChegadaAdocao = 0;
 
 async function adotar(req, res) {
-  // Instante em que o servidor começou a tratar este pedido. Como cliente e
-  // servidor rodam na mesma máquina (localhost), os relógios são o mesmo, então
-  // dá pra comparar este valor com o "enviadoEm" do cliente.
+  // Instante em que o servidor recebeu a requisição. Cliente e servidor compartilham
+  // o mesmo relógio em localhost, permitindo a comparação com o envio do cliente.
   const recebidoEm = Date.now();
-  // Ordem de chegada no servidor: 1 = primeiro pedido que o event loop do Node
-  // desempacotou, 2 = segundo, e assim por diante. Mesmo disparando "juntos",
-  // os pedidos entram aqui um de cada vez.
+  // Ordem sequencial de chegada ao servidor. Mesmo disparadas em paralelo, as
+  // requisições são processadas uma a uma pelo event loop.
   const ordemChegada = ++_ordemChegadaAdocao;
 
   const { id } = req.params;
@@ -120,18 +116,16 @@ async function adotar(req, res) {
   }
 
   try {
-    // Coração do RF014: o UPDATE só altera a linha se ela AINDA estiver como 'D'.
-    // O Postgres coloca uma TRAVA DE LINHA (row lock): o primeiro UPDATE a pegar
-    // a trava muda D→I (rowCount=1, vence); todos os outros, ao rodar o mesmo
-    // comando, encontram status já='I', o WHERE não casa (rowCount=0) e perdem.
-    // É o banco — não o JavaScript — que serializa a disputa e garante 1 vencedor.
+    // O UPDATE só altera a linha se ela ainda estiver em 'D'. O PostgreSQL aplica
+    // uma trava de linha: a primeira transação a obtê-la muda D->I (rowCount=1,
+    // vence); as demais encontram status='I', a cláusula WHERE não é satisfeita
+    // (rowCount=0) e recebem 409. É o banco que serializa a disputa.
     const t0 = Date.now();
     const { rows, rowCount } = await pool.query(
       "UPDATE animais SET status = 'I' WHERE id = $1 AND status = 'D' RETURNING id, nome",
       [id]
     );
-    // Tempo que o pedido passou no banco: fila do pool de conexões + espera da
-    // trava de linha + execução do UPDATE. É aqui que a corrida é decidida.
+    // Tempo da requisição no banco: fila do pool + aquisição da trava + execução.
     const dbMs = Date.now() - t0;
 
     if (rowCount === 1) {

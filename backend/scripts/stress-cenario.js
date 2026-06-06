@@ -344,9 +344,7 @@ async function main() {
   }
   console.log(mensagemVer);
 
-  // ANTES (bug): statsAd era calculado sobre os eventos de NAVEGAÇÃO, então o
-  // bloco "adocao" do summary saía idêntico ao "navegacao". Agora usa os
-  // eventos de adoção de verdade.
+  // Estatísticas de latência das requisições de adoção.
   const statsAd = estatisticas(adEventos.map((e) => e.latencia));
   const tpAd = throughput(adEventos);
 

@@ -43,20 +43,13 @@ function criarSessao(nome) {
 }
 
 // ---------------------------------------------------------------------------
-// PERCENTIL — método de interpolação linear (R-7), o mesmo que o NumPy e o
-// Excel (PERCENTIL.INC) usam por padrão.
+// PERCENTIL — interpolação linear (método R-7), equivalente ao padrão do NumPy
+// e à função PERCENTIL.INC do Excel.
 //
-// Por que trocamos? A versão antiga fazia `Math.floor((N * p) / 100)`, que tem
-// um erro de "índice deslocado em 1": para amostras pequenas (10 ou 20 valores)
-// o p95 e o p99 caíam SEMPRE em cima do valor máximo, fazendo parecer que o
-// p95 == max. Isso é matematicamente errado e tira o sentido do percentil.
-//
-// O método correto encontra a POSIÇÃO fracionária do percentil dentro do
-// vetor ordenado e interpola entre os dois vizinhos:
+// Encontra a posição fracionária do percentil no vetor ordenado e interpola
+// entre os dois vizinhos:
 //   posição = (p/100) · (N − 1)        → 0 = primeiro valor, N−1 = último
 //   valor   = arr[piso] + fração · (arr[teto] − arr[piso])
-// Assim, com 20 amostras o p95 fica ENTRE o 19º e o 20º valor, e não grudado
-// no máximo.
 // ---------------------------------------------------------------------------
 function percentil(arr, p) {
   if (arr.length === 0) return 0;
@@ -85,16 +78,9 @@ function estatisticas(latencias) {
 }
 
 // ---------------------------------------------------------------------------
-// THROUGHPUT — vazão real (requisições por segundo).
-//
-// Por que mudou? A versão antiga dividia o total de requests pela DURAÇÃO
-// NOMINAL configurada (ex.: 6000ms), mas os usuários terminam a navegação bem
-// antes desse prazo. Resultado: o "tempo" usado na conta (6s) não batia com a
-// janela em que as requisições realmente aconteceram (~1,2s), e o número saía
-// até 5x menor que o real.
-//
-// Agora medimos a JANELA REAL: do instante em que a primeira requisição foi
-// enviada até o instante em que a última foi respondida. Vazão = total ÷ janela.
+// THROUGHPUT — vazão (requisições por segundo) medida sobre a janela real de
+// execução: do instante em que a primeira requisição foi enviada até o instante
+// em que a última foi respondida. Vazão = total de requisições ÷ janela.
 // ---------------------------------------------------------------------------
 function throughput(eventos) {
   if (!eventos || eventos.length === 0) {

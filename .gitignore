@@ -1,3 +1,6 @@
 node_modules/
 .env
 .DS_Store
+
+# Relatorio em PDF (gerado localmente, nao versionado)
+*.pdf
