@@ -1,0 +1,5 @@
+{"tAbs":1780005598222,"tipo":"request","acao":"adotar","usuarioId":"user-2","petId":15,"nome":"Maia","enviadoEm":80,"respondidoEm":120,"latencia":40,"status":200,"motivo":"Adoção realizada"}
+{"tAbs":1780005598222,"tipo":"request","acao":"adotar","usuarioId":"user-5","petId":15,"enviadoEm":81,"respondidoEm":120,"latencia":39,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780005598222,"tipo":"request","acao":"adotar","usuarioId":"user-3","petId":15,"enviadoEm":80,"respondidoEm":120,"latencia":40,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780005598223,"tipo":"request","acao":"adotar","usuarioId":"user-1","petId":15,"enviadoEm":56,"respondidoEm":121,"latencia":65,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780005598223,"tipo":"request","acao":"adotar","usuarioId":"user-4","petId":15,"enviadoEm":81,"respondidoEm":121,"latencia":40,"status":409,"motivo":"Animal já foi adotado"}

@@ -1,0 +1,69 @@
+{
+  "nome": "Teste de adoção concorrente (RF014)",
+  "descricao": "5 usuários tentando adotar o animal 1 (Thor) ao mesmo tempo.",
+  "inicioISO": "2026-05-28T22:36:08.404Z",
+  "config": {
+    "ANIMAL_ID": 1,
+    "NUM_USUARIOS": 5,
+    "BASE_URL": "http://localhost:3001",
+    "RESET": true
+  },
+  "cards": [
+    {
+      "label": "Animal alvo",
+      "valor": "1 — Thor"
+    },
+    {
+      "label": "Usuários",
+      "valor": "5"
+    },
+    {
+      "label": "Sucessos",
+      "valor": "1",
+      "sub": "esperado: 1"
+    },
+    {
+      "label": "Conflitos (409)",
+      "valor": "4"
+    },
+    {
+      "label": "Erros",
+      "valor": "0"
+    },
+    {
+      "label": "Tempo total",
+      "valor": "93ms"
+    },
+    {
+      "label": "Latência p50",
+      "valor": "57ms"
+    },
+    {
+      "label": "Latência p95",
+      "valor": "93ms"
+    },
+    {
+      "label": "Status final",
+      "valor": "I"
+    },
+    {
+      "label": "Vencedor",
+      "valor": "user-3"
+    }
+  ],
+  "veredito": {
+    "ok": true,
+    "mensagem": "✅ Teste PASSOU: exatamente 1 usuário conseguiu adotar."
+  },
+  "estatisticas": {
+    "adocao": {
+      "count": 5,
+      "min": 56,
+      "p50": 57,
+      "p95": 93,
+      "p99": 93,
+      "max": 93,
+      "media": 64
+    }
+  }
+}

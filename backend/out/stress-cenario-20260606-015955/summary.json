@@ -1,0 +1,204 @@
+{
+  "nome": "Teste de cenário — perfil cheio",
+  "descricao": "1000 usuários navegando + 5 ondas de adoção paralelas (1000 adotantes).",
+  "inicioISO": "2026-06-06T04:59:55.165Z",
+  "config": {
+    "PERFIL": "cheio",
+    "BASE_URL": "http://localhost:3001",
+    "navegacao": {
+      "usuarios": 1000,
+      "duracaoMs": 10000,
+      "requestsPorUsuario": [
+        3,
+        7
+      ]
+    },
+    "ondas": [
+      {
+        "petId": 29,
+        "usuarios": 200
+      },
+      {
+        "petId": 30,
+        "usuarios": 200
+      },
+      {
+        "petId": 31,
+        "usuarios": 400
+      },
+      {
+        "petId": 33,
+        "usuarios": 100
+      },
+      {
+        "petId": 34,
+        "usuarios": 100
+      }
+    ]
+  },
+  "cards": [
+    {
+      "label": "Perfil",
+      "valor": "cheio",
+      "dica": "reduzido (~550 reqs) ou cheio (~6000 reqs)."
+    },
+    {
+      "label": "Usuários navegando",
+      "valor": "1000",
+      "dica": "Carga de fundo: pessoas só consultando a lista de animais."
+    },
+    {
+      "label": "Usuários adotando",
+      "valor": "1000",
+      "dica": "Total de tentativas de adoção somando as 5 ondas."
+    },
+    {
+      "label": "Adoção sucesso",
+      "valor": "5",
+      "sub": "esperado: 5",
+      "dica": "Deve ser 1 por pet. Mais que o esperado = RF014 violado."
+    },
+    {
+      "label": "Adoção 409",
+      "valor": "995",
+      "dica": "Perdedores corretos: chegaram quando o pet já era I."
+    },
+    {
+      "label": "Adoção erros",
+      "valor": "0",
+      "dica": "Erros de servidor/rede. Deveria ser 0."
+    },
+    {
+      "label": "Adoção throughput",
+      "valor": "5917.2 req/s",
+      "sub": "0.17s de janela",
+      "dica": "Vazão da adoção medida na janela real (1º envio → última resposta)."
+    },
+    {
+      "label": "Navegação total",
+      "valor": "4953",
+      "dica": "Quantos GETs a carga de fundo fez no total."
+    },
+    {
+      "label": "Nav throughput",
+      "valor": "3254.3 req/s",
+      "sub": "1.52s de janela",
+      "dica": "Vazão da navegação na janela real — não na duração nominal."
+    },
+    {
+      "label": "Nav p50",
+      "valor": "2ms",
+      "dica": "Mediana da latência de navegação."
+    },
+    {
+      "label": "Nav p95",
+      "valor": "275ms",
+      "dica": "95% das navegações responderam em até esse tempo."
+    },
+    {
+      "label": "Nav p99",
+      "valor": "362ms",
+      "dica": "Quase pior caso da navegação."
+    },
+    {
+      "label": "PG pool max",
+      "valor": "50",
+      "dica": "Conexões simultâneas no Postgres. Acima disso, os pedidos fazem fila."
+    }
+  ],
+  "veredito": {
+    "ok": true,
+    "mensagem": "✅ RF014 atendido: exatamente 5 sucessos (um por pet). Concorrência sob controle."
+  },
+  "estatisticas": {
+    "navegacao": {
+      "count": 4953,
+      "min": 0,
+      "p50": 2,
+      "p95": 275,
+      "p99": 362,
+      "max": 378,
+      "media": 47
+    },
+    "adocao": {
+      "count": 1000,
+      "min": 91,
+      "p50": 125,
+      "p95": 129,
+      "p99": 130,
+      "max": 132,
+      "media": 125
+    }
+  },
+  "throughput": {
+    "navegacao": {
+      "reqs": 4953,
+      "janelaMs": 1522,
+      "janelaSeg": 1.52,
+      "reqPorSeg": 3254.3
+    },
+    "adocao": {
+      "reqs": 1000,
+      "janelaMs": 169,
+      "janelaSeg": 0.17,
+      "reqPorSeg": 5917.2
+    }
+  },
+  "porPet": [
+    {
+      "petId": 29,
+      "nome": "Frida",
+      "tentativas": 200,
+      "vencedor": "ad-pet29-u4",
+      "latVencedor": "100ms",
+      "latP50": "122ms",
+      "latP95": "126ms",
+      "latMax": "132ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 30,
+      "nome": "Billy",
+      "tentativas": 200,
+      "vencedor": "ad-pet30-u1",
+      "latVencedor": "96ms",
+      "latP50": "122ms",
+      "latP95": "126ms",
+      "latMax": "130ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 31,
+      "nome": "Loki",
+      "tentativas": 400,
+      "vencedor": "ad-pet31-u2",
+      "latVencedor": "96ms",
+      "latP50": "125ms",
+      "latP95": "128ms",
+      "latMax": "130ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 33,
+      "nome": "Bidu",
+      "tentativas": 100,
+      "vencedor": "ad-pet33-u1",
+      "latVencedor": "91ms",
+      "latP50": "128ms",
+      "latP95": "130ms",
+      "latMax": "130ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 34,
+      "nome": "Maya",
+      "tentativas": 100,
+      "vencedor": "ad-pet34-u2",
+      "latVencedor": "91ms",
+      "latP50": "129ms",
+      "latP95": "130ms",
+      "latMax": "130ms",
+      "statusFinal": "I"
+    }
+  ]
+}

@@ -1,0 +1,167 @@
+{
+  "nome": "Teste de cenário — perfil reduzido",
+  "descricao": "100 usuários navegando + 5 ondas de adoção paralelas (100 adotantes).",
+  "inicioISO": "2026-05-28T21:59:44.716Z",
+  "config": {
+    "PERFIL": "reduzido",
+    "BASE_URL": "http://localhost:3001",
+    "navegacao": {
+      "usuarios": 100,
+      "duracaoMs": 6000,
+      "requestsPorUsuario": [
+        3,
+        6
+      ]
+    },
+    "ondas": [
+      {
+        "petId": 7,
+        "usuarios": 20
+      },
+      {
+        "petId": 9,
+        "usuarios": 20
+      },
+      {
+        "petId": 10,
+        "usuarios": 40
+      },
+      {
+        "petId": 11,
+        "usuarios": 10
+      },
+      {
+        "petId": 12,
+        "usuarios": 10
+      }
+    ]
+  },
+  "cards": [
+    {
+      "label": "Perfil",
+      "valor": "reduzido"
+    },
+    {
+      "label": "Usuários navegando",
+      "valor": "100"
+    },
+    {
+      "label": "Usuários adotando",
+      "valor": "100"
+    },
+    {
+      "label": "Adoção sucesso",
+      "valor": "5",
+      "sub": "esperado: 5"
+    },
+    {
+      "label": "Adoção 409",
+      "valor": "95"
+    },
+    {
+      "label": "Adoção erros",
+      "valor": "0"
+    },
+    {
+      "label": "Navegação total",
+      "valor": "458"
+    },
+    {
+      "label": "Nav p50",
+      "valor": "2ms"
+    },
+    {
+      "label": "Nav p95",
+      "valor": "112ms"
+    },
+    {
+      "label": "Nav p99",
+      "valor": "114ms"
+    },
+    {
+      "label": "PG pool max",
+      "valor": "10"
+    }
+  ],
+  "veredito": {
+    "ok": true,
+    "mensagem": "✅ RF014 atendido: exatamente 5 sucessos (um por pet). Concorrência sob controle."
+  },
+  "estatisticas": {
+    "navegacao": {
+      "count": 458,
+      "min": 0,
+      "p50": 2,
+      "p95": 112,
+      "p99": 114,
+      "max": 115,
+      "media": 21
+    },
+    "adocao": {
+      "count": 458,
+      "min": 0,
+      "p50": 2,
+      "p95": 112,
+      "p99": 114,
+      "max": 115,
+      "media": 21
+    }
+  },
+  "porPet": [
+    {
+      "petId": 7,
+      "nome": "Amora",
+      "tentativas": 20,
+      "vencedor": "ad-pet7-u1",
+      "latVencedor": "31ms",
+      "latP50": "47ms",
+      "latP95": "50ms",
+      "latMax": "50ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 9,
+      "nome": "Baleia",
+      "tentativas": 20,
+      "vencedor": "ad-pet9-u1",
+      "latVencedor": "31ms",
+      "latP50": "47ms",
+      "latP95": "47ms",
+      "latMax": "47ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 10,
+      "nome": "Cacau",
+      "tentativas": 40,
+      "vencedor": "ad-pet10-u1",
+      "latVencedor": "29ms",
+      "latP50": "47ms",
+      "latP95": "48ms",
+      "latMax": "49ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 11,
+      "nome": "Chico",
+      "tentativas": 10,
+      "vencedor": "ad-pet11-u2",
+      "latVencedor": "31ms",
+      "latP50": "47ms",
+      "latP95": "49ms",
+      "latMax": "49ms",
+      "statusFinal": "I"
+    },
+    {
+      "petId": 12,
+      "nome": "Apollo",
+      "tentativas": 10,
+      "vencedor": "ad-pet12-u1",
+      "latVencedor": "38ms",
+      "latP50": "48ms",
+      "latP95": "48ms",
+      "latMax": "48ms",
+      "statusFinal": "I"
+    }
+  ]
+}

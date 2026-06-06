@@ -1,0 +1,6800 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório — Teste de cenário — perfil reduzido</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; padding: 24px; line-height: 1.5; }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  h2 { font-size: 16px; margin: 16px 0 12px; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; }
+  h3 { font-size: 14px; margin-bottom: 8px; color: #475569; }
+  .subtitulo { color: #64748b; font-size: 13px; margin-bottom: 16px; }
+  section { background: white; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .intro { background: #eff6ff; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e3a5f; }
+  .intro p { margin-bottom: 8px; }
+  .intro p:last-child { margin-bottom: 0; }
+  .intro code { background: #dbeafe; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 6px; }
+  .card .label { font-size: 10px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; }
+  .card .value { font-size: 20px; font-weight: 700; margin-top: 3px; color: #0f172a; }
+  .card .sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .veredito { padding: 14px 18px; border-radius: 6px; font-weight: 600; font-size: 15px; }
+  .veredito.ok { background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e; }
+  .veredito.fail { background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444; }
+  .timeline { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; }
+  .timeline:last-child { border-bottom: none; }
+  .timeline-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 13px; flex-wrap: wrap; }
+  .badge { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-ok { background: #dcfce7; color: #14532d; }
+  .badge-fail { background: #fee2e2; color: #7f1d1d; }
+  .corrida { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #eef2f7; }
+  .corrida:last-child { border-bottom: none; }
+  .corrida-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; flex-wrap: wrap; }
+  .explica { font-size: 13px; color: #334155; background: #fafcff; border: 1px solid #e8eef6; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+  .explica code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  table.mini { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 6px; }
+  table.mini th { background: #f8fafc; text-align: left; padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+  table.mini td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; }
+  table.mini tr.venc { background: #f0fdf4; font-weight: 600; }
+  .legenda-mini { font-size: 11px; color: #64748b; }
+  .hist { padding: 8px 0; }
+  .hist-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding: 0 4px; border-bottom: 1px solid #e2e8f0; }
+  .hist-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; height: 100%; position: relative; }
+  .hist-bar-fill { width: 80%; background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); border-radius: 3px 3px 0 0; min-height: 1px; }
+  .hist-bar-value { position: absolute; top: -16px; font-size: 10px; color: #475569; }
+  .hist-bar-label { font-size: 9px; color: #64748b; margin-top: 4px; text-align: center; transform: rotate(-30deg); transform-origin: center; white-space: nowrap; }
+  .hists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .hists { grid-template-columns: 1fr; } }
+  .tp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .tp { grid-template-columns: 1fr; } }
+  .tp-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; font-size: 13px; }
+  .tp-box h3 { margin-bottom: 6px; }
+  .nota { font-size: 12px; color: #64748b; margin-top: 10px; padding: 10px 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; }
+  .glossario { font-size: 13px; }
+  .glossario dt { font-weight: 700; color: #0f172a; margin-top: 10px; }
+  .glossario dd { color: #475569; margin-left: 0; margin-top: 2px; }
+  .glossario code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .filtros { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .filtros select, .filtros input { padding: 5px 8px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
+  table.eventos { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.eventos th, table.eventos td { padding: 5px 8px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+  table.eventos th { background: #f8fafc; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+  .status-ok { color: #14532d; font-weight: 600; }
+  .status-conflict { color: #854d0e; font-weight: 500; }
+  .status-erro { color: #7f1d1d; font-weight: 700; }
+  .tabela-wrap { max-height: 400px; overflow-y: auto; }
+  tr.hidden { display: none; }
+  .legenda { display: flex; gap: 14px; font-size: 11px; color: #475569; margin-top: 6px; flex-wrap: wrap; }
+  .legenda span { display: flex; align-items: center; gap: 4px; }
+  .legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+  <h1>📊 Teste de cenário — perfil reduzido</h1>
+  <div class="subtitulo">100 usuários navegando + 5 ondas de adoção paralelas (100 adotantes). · 06/06/2026, 01:48:03</div>
+
+  <section class="intro">
+    <p><strong>O que este teste verifica (RF014):</strong> quando vários usuários tentam adotar o <strong>mesmo</strong> pet ao mesmo tempo, o sistema deve deixar <strong>exatamente um</strong> vencer. Os demais recebem <code>409 Conflito</code> ("Animal já foi adotado").</p>
+    <p><strong>Como a disputa é resolvida:</strong> a adoção roda <code>UPDATE animais SET status='I' WHERE id=? AND status='D'</code>. O Postgres dá uma <strong>trava de linha</strong> nessa linha: o primeiro <code>UPDATE</code> a pegar a trava muda <code>D→I</code> e vence; os outros, ao rodar o mesmo comando, já encontram <code>status='I'</code>, o <code>WHERE</code> não casa e voltam com <code>409</code>. <strong>É o banco que serializa a corrida — não o JavaScript.</strong></p>
+  </section>
+
+  <section>
+    <div class="veredito ok">✅ RF014 atendido: exatamente 5 sucessos (um por pet). Concorrência sob controle.</div>
+  </section>
+
+  <section>
+    <h2>Resumo</h2>
+    <div class="cards">
+    <div class="card" title="reduzido (~550 reqs) ou cheio (~6000 reqs).">
+      <div class="label">Perfil</div>
+      <div class="value">reduzido</div>
+      
+    </div>
+    <div class="card" title="Carga de fundo: pessoas só consultando a lista de animais.">
+      <div class="label">Usuários navegando</div>
+      <div class="value">100</div>
+      
+    </div>
+    <div class="card" title="Total de tentativas de adoção somando as 5 ondas.">
+      <div class="label">Usuários adotando</div>
+      <div class="value">100</div>
+      
+    </div>
+    <div class="card" title="Deve ser 1 por pet. Mais que o esperado = RF014 violado.">
+      <div class="label">Adoção sucesso</div>
+      <div class="value">5</div>
+      <div class="sub">esperado: 5</div>
+    </div>
+    <div class="card" title="Perdedores corretos: chegaram quando o pet já era I.">
+      <div class="label">Adoção 409</div>
+      <div class="value">95</div>
+      
+    </div>
+    <div class="card" title="Erros de servidor/rede. Deveria ser 0.">
+      <div class="label">Adoção erros</div>
+      <div class="value">0</div>
+      
+    </div>
+    <div class="card" title="Vazão da adoção medida na janela real (1º envio → última resposta).">
+      <div class="label">Adoção throughput</div>
+      <div class="value">1960.8 req/s</div>
+      <div class="sub">0.05s de janela</div>
+    </div>
+    <div class="card" title="Quantos GETs a carga de fundo fez no total.">
+      <div class="label">Navegação total</div>
+      <div class="value">450</div>
+      
+    </div>
+    <div class="card" title="Vazão da navegação na janela real — não na duração nominal.">
+      <div class="label">Nav throughput</div>
+      <div class="value">452.3 req/s</div>
+      <div class="sub">0.99s de janela</div>
+    </div>
+    <div class="card" title="Mediana da latência de navegação.">
+      <div class="label">Nav p50</div>
+      <div class="value">1ms</div>
+      
+    </div>
+    <div class="card" title="95% das navegações responderam em até esse tempo.">
+      <div class="label">Nav p95</div>
+      <div class="value">51ms</div>
+      
+    </div>
+    <div class="card" title="Quase pior caso da navegação.">
+      <div class="label">Nav p99</div>
+      <div class="value">54ms</div>
+      
+    </div>
+    <div class="card" title="Conexões simultâneas no Postgres. Acima disso, os pedidos fazem fila.">
+      <div class="label">PG pool max</div>
+      <div class="value">10</div>
+      
+    </div></div>
+  </section>
+
+  <section>
+    <h2>🏁 Quem ganhou e por quê</h2>
+    <p class="subtitulo" style="margin-bottom:14px">Esta é a parte central: não basta dizer que alguém "chegou primeiro". Aqui mostramos, com os números reais da corrida, <strong>por que</strong> aquele usuário venceu — e por que a latência sozinha não explica.</p>
+    <div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 29 — Frida</strong>
+      <span class="badge badge-ok">🏆 Vencedor: ad-pet29-u2</span>
+      <span class="badge">20 tentativas · 1 ganhou · 19 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que ad-pet29-u2 ganhou?</strong> Chegou ao servidor na <strong>2ª posição</strong> (de 20) — <em>não</em> foi o primeiríssimo a chegar, mas seu <code>UPDATE</code> foi o primeiro a conquistar a trava de linha. A fila do pool de conexões pode reordenar quem encosta no banco primeiro. Neste caso o vencedor <em>também</em> teve a menor latência (30ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="">
+        <td>1º</td>
+        <td>ad-pet29-u1</td>
+        <td>+2035ms</td>
+        <td class="status-conflict">409</td>
+        <td>44ms</td>
+        <td>9ms</td>
+      </tr><tr class="venc">
+        <td>2º</td>
+        <td>ad-pet29-u2</td>
+        <td>+2036ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>30ms</td>
+        <td>7ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>ad-pet29-u3</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>41ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>4º</td>
+        <td>ad-pet29-u4</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>43ms</td>
+        <td>14ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>ad-pet29-u5</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>44ms</td>
+        <td>16ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>ad-pet29-u6</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>42ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>ad-pet29-u7</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>42ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>ad-pet29-u8</td>
+        <td>+2036ms</td>
+        <td class="status-conflict">409</td>
+        <td>42ms</td>
+        <td>16ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div><div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 30 — Billy</strong>
+      <span class="badge badge-ok">🏆 Vencedor: ad-pet30-u2</span>
+      <span class="badge">20 tentativas · 1 ganhou · 19 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que ad-pet30-u2 ganhou?</strong> Chegou ao servidor na <strong>2ª posição</strong> (de 20) — <em>não</em> foi o primeiríssimo a chegar, mas seu <code>UPDATE</code> foi o primeiro a conquistar a trava de linha. A fila do pool de conexões pode reordenar quem encosta no banco primeiro. Neste caso o vencedor <em>também</em> teve a menor latência (32ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="">
+        <td>1º</td>
+        <td>ad-pet30-u1</td>
+        <td>+2037ms</td>
+        <td class="status-conflict">409</td>
+        <td>40ms</td>
+        <td>12ms</td>
+      </tr><tr class="venc">
+        <td>2º</td>
+        <td>ad-pet30-u2</td>
+        <td>+2037ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>32ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>ad-pet30-u3</td>
+        <td>+2037ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>4º</td>
+        <td>ad-pet30-u4</td>
+        <td>+2038ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>ad-pet30-u5</td>
+        <td>+2038ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>10ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>ad-pet30-u6</td>
+        <td>+2038ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>ad-pet30-u7</td>
+        <td>+2038ms</td>
+        <td class="status-conflict">409</td>
+        <td>38ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>ad-pet30-u8</td>
+        <td>+2038ms</td>
+        <td class="status-conflict">409</td>
+        <td>38ms</td>
+        <td>12ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div><div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 31 — Loki</strong>
+      <span class="badge badge-ok">🏆 Vencedor: ad-pet31-u1</span>
+      <span class="badge">40 tentativas · 1 ganhou · 39 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que ad-pet31-u1 ganhou?</strong> Foi o <strong>1º pedido a chegar no servidor</strong> (de 40). Chegou primeiro e seu <code>UPDATE</code> foi também o primeiro a encostar na trava de linha. Neste caso o vencedor <em>também</em> teve a menor latência (33ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="venc">
+        <td>1º</td>
+        <td>ad-pet31-u1</td>
+        <td>+2039ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>33ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>2º</td>
+        <td>ad-pet31-u2</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>38ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>ad-pet31-u3</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>4º</td>
+        <td>ad-pet31-u4</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>40ms</td>
+        <td>14ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>ad-pet31-u5</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>14ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>ad-pet31-u6</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>40ms</td>
+        <td>14ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>ad-pet31-u7</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>39ms</td>
+        <td>13ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>ad-pet31-u8</td>
+        <td>+2039ms</td>
+        <td class="status-conflict">409</td>
+        <td>41ms</td>
+        <td>14ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div><div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 33 — Bidu</strong>
+      <span class="badge badge-ok">🏆 Vencedor: ad-pet33-u1</span>
+      <span class="badge">10 tentativas · 1 ganhou · 9 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que ad-pet33-u1 ganhou?</strong> Foi o <strong>1º pedido a chegar no servidor</strong> (de 10). Chegou primeiro e seu <code>UPDATE</code> foi também o primeiro a encostar na trava de linha. Neste caso o vencedor <em>também</em> teve a menor latência (27ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="venc">
+        <td>1º</td>
+        <td>ad-pet33-u1</td>
+        <td>+2042ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>27ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>2º</td>
+        <td>ad-pet33-u2</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>34ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>ad-pet33-u3</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>34ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>4º</td>
+        <td>ad-pet33-u4</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>ad-pet33-u5</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>34ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>ad-pet33-u6</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>32ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>ad-pet33-u7</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>ad-pet33-u8</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div><div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 34 — Maya</strong>
+      <span class="badge badge-ok">🏆 Vencedor: ad-pet34-u1</span>
+      <span class="badge">10 tentativas · 1 ganhou · 9 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que ad-pet34-u1 ganhou?</strong> Foi o <strong>1º pedido a chegar no servidor</strong> (de 10). Chegou primeiro e seu <code>UPDATE</code> foi também o primeiro a encostar na trava de linha. Neste caso o vencedor <em>também</em> teve a menor latência (26ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="venc">
+        <td>1º</td>
+        <td>ad-pet34-u1</td>
+        <td>+2042ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>26ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>2º</td>
+        <td>ad-pet34-u2</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>ad-pet34-u3</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>4º</td>
+        <td>ad-pet34-u4</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>ad-pet34-u5</td>
+        <td>+2042ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>12ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>ad-pet34-u6</td>
+        <td>+2043ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>ad-pet34-u7</td>
+        <td>+2043ms</td>
+        <td class="status-conflict">409</td>
+        <td>33ms</td>
+        <td>11ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>ad-pet34-u8</td>
+        <td>+2043ms</td>
+        <td class="status-conflict">409</td>
+        <td>34ms</td>
+        <td>11ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div>
+  </section>
+
+  <section>
+    <h2>Timeline da corrida de adoção</h2>
+    <div class="legenda">
+      <span><i style="background:#22c55e"></i>200 OK (vencedor)</span>
+      <span><i style="background:#eab308"></i>409 Conflito (perdeu a corrida)</span>
+      <span><i style="background:#a855f7"></i>404 Não encontrado</span>
+      <span><i style="background:#ef4444"></i>5xx / Erro de rede</span>
+    </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 29 — Frida</strong>
+          <span class="badge">20 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: ad-pet29-u2 (30ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 76" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="76" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="80.0" y="4" width="793.7" height="2" fill="#eab308" ><title>ad-pet29-u1 → 409 (44ms)</title></rect><rect x="134.1" y="7" width="541.2" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>ad-pet29-u2 → 200 (30ms)</title></rect><rect x="134.1" y="10" width="739.6" height="2" fill="#eab308" ><title>ad-pet29-u3 → 409 (41ms)</title></rect><rect x="134.1" y="13" width="757.6" height="2" fill="#eab308" ><title>ad-pet29-u6 → 409 (42ms)</title></rect><rect x="134.1" y="16" width="775.7" height="2" fill="#eab308" ><title>ad-pet29-u4 → 409 (43ms)</title></rect><rect x="134.1" y="19" width="793.7" height="2" fill="#eab308" ><title>ad-pet29-u5 → 409 (44ms)</title></rect><rect x="152.2" y="22" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u9 → 409 (40ms)</title></rect><rect x="152.2" y="25" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u12 → 409 (40ms)</title></rect><rect x="152.2" y="28" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u13 → 409 (40ms)</title></rect><rect x="152.2" y="31" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u14 → 409 (40ms)</title></rect><rect x="152.2" y="34" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u11 → 409 (40ms)</title></rect><rect x="152.2" y="37" width="739.6" height="2" fill="#eab308" ><title>ad-pet29-u15 → 409 (41ms)</title></rect><rect x="152.2" y="40" width="757.6" height="2" fill="#eab308" ><title>ad-pet29-u7 → 409 (42ms)</title></rect><rect x="152.2" y="43" width="757.6" height="2" fill="#eab308" ><title>ad-pet29-u8 → 409 (42ms)</title></rect><rect x="152.2" y="46" width="757.6" height="2" fill="#eab308" ><title>ad-pet29-u10 → 409 (42ms)</title></rect><rect x="170.2" y="49" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u16 → 409 (40ms)</title></rect><rect x="170.2" y="52" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u20 → 409 (40ms)</title></rect><rect x="170.2" y="55" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u17 → 409 (40ms)</title></rect><rect x="170.2" y="58" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u19 → 409 (40ms)</title></rect><rect x="170.2" y="61" width="721.6" height="2" fill="#eab308" ><title>ad-pet29-u18 → 409 (40ms)</title></rect>
+        </svg>
+      </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 30 — Billy</strong>
+          <span class="badge">20 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: ad-pet30-u2 (32ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 76" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="76" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="170.2" y="4" width="577.3" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>ad-pet30-u2 → 200 (32ms)</title></rect><rect x="170.2" y="7" width="721.6" height="2" fill="#eab308" ><title>ad-pet30-u1 → 409 (40ms)</title></rect><rect x="188.2" y="10" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u5 → 409 (39ms)</title></rect><rect x="188.2" y="13" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u4 → 409 (39ms)</title></rect><rect x="188.2" y="16" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u6 → 409 (39ms)</title></rect><rect x="188.2" y="19" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u3 → 409 (39ms)</title></rect><rect x="206.3" y="22" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u7 → 409 (38ms)</title></rect><rect x="206.3" y="25" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u9 → 409 (38ms)</title></rect><rect x="206.3" y="28" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u8 → 409 (38ms)</title></rect><rect x="206.3" y="31" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u11 → 409 (38ms)</title></rect><rect x="206.3" y="34" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u10 → 409 (39ms)</title></rect><rect x="206.3" y="37" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u12 → 409 (39ms)</title></rect><rect x="206.3" y="40" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u15 → 409 (39ms)</title></rect><rect x="206.3" y="43" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u16 → 409 (39ms)</title></rect><rect x="206.3" y="46" width="703.5" height="2" fill="#eab308" ><title>ad-pet30-u13 → 409 (39ms)</title></rect><rect x="206.3" y="49" width="721.6" height="2" fill="#eab308" ><title>ad-pet30-u14 → 409 (40ms)</title></rect><rect x="224.3" y="52" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u17 → 409 (38ms)</title></rect><rect x="224.3" y="55" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u18 → 409 (38ms)</title></rect><rect x="224.3" y="58" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u20 → 409 (38ms)</title></rect><rect x="224.3" y="61" width="685.5" height="2" fill="#eab308" ><title>ad-pet30-u19 → 409 (38ms)</title></rect>
+        </svg>
+      </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 31 — Loki</strong>
+          <span class="badge">40 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: ad-pet31-u1 (33ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 136" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="136" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="224.3" y="4" width="595.3" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>ad-pet31-u1 → 200 (33ms)</title></rect><rect x="224.3" y="7" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u2 → 409 (38ms)</title></rect><rect x="224.3" y="10" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u10 → 409 (38ms)</title></rect><rect x="224.3" y="13" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u7 → 409 (39ms)</title></rect><rect x="224.3" y="16" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u9 → 409 (39ms)</title></rect><rect x="224.3" y="19" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u5 → 409 (39ms)</title></rect><rect x="224.3" y="22" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u3 → 409 (39ms)</title></rect><rect x="224.3" y="25" width="721.6" height="2" fill="#eab308" ><title>ad-pet31-u4 → 409 (40ms)</title></rect><rect x="224.3" y="28" width="721.6" height="2" fill="#eab308" ><title>ad-pet31-u6 → 409 (40ms)</title></rect><rect x="224.3" y="31" width="739.6" height="2" fill="#eab308" ><title>ad-pet31-u8 → 409 (41ms)</title></rect><rect x="242.4" y="34" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u11 → 409 (38ms)</title></rect><rect x="242.4" y="37" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u12 → 409 (38ms)</title></rect><rect x="242.4" y="40" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u14 → 409 (38ms)</title></rect><rect x="242.4" y="43" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u15 → 409 (38ms)</title></rect><rect x="242.4" y="46" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u16 → 409 (38ms)</title></rect><rect x="242.4" y="49" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u13 → 409 (38ms)</title></rect><rect x="242.4" y="52" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u20 → 409 (38ms)</title></rect><rect x="242.4" y="55" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u19 → 409 (38ms)</title></rect><rect x="242.4" y="58" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u21 → 409 (39ms)</title></rect><rect x="242.4" y="61" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u18 → 409 (39ms)</title></rect><rect x="242.4" y="64" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u17 → 409 (39ms)</title></rect><rect x="260.4" y="67" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u23 → 409 (38ms)</title></rect><rect x="260.4" y="70" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u27 → 409 (38ms)</title></rect><rect x="260.4" y="73" width="685.5" height="2" fill="#eab308" ><title>ad-pet31-u26 → 409 (38ms)</title></rect><rect x="260.4" y="76" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u24 → 409 (39ms)</title></rect><rect x="260.4" y="79" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u22 → 409 (39ms)</title></rect><rect x="260.4" y="82" width="703.5" height="2" fill="#eab308" ><title>ad-pet31-u25 → 409 (39ms)</title></rect><rect x="332.5" y="85" width="613.3" height="2" fill="#eab308" ><title>ad-pet31-u28 → 409 (34ms)</title></rect><rect x="332.5" y="88" width="613.3" height="2" fill="#eab308" ><title>ad-pet31-u29 → 409 (34ms)</title></rect><rect x="332.5" y="91" width="631.4" height="2" fill="#eab308" ><title>ad-pet31-u31 → 409 (35ms)</title></rect><rect x="332.5" y="94" width="631.4" height="2" fill="#eab308" ><title>ad-pet31-u30 → 409 (35ms)</title></rect><rect x="350.6" y="97" width="613.3" height="2" fill="#eab308" ><title>ad-pet31-u33 → 409 (34ms)</title></rect><rect x="350.6" y="100" width="613.3" height="2" fill="#eab308" ><title>ad-pet31-u32 → 409 (34ms)</title></rect><rect x="368.6" y="103" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u34 → 409 (33ms)</title></rect><rect x="368.6" y="106" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u35 → 409 (33ms)</title></rect><rect x="368.6" y="109" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u37 → 409 (33ms)</title></rect><rect x="368.6" y="112" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u36 → 409 (33ms)</title></rect><rect x="368.6" y="115" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u39 → 409 (33ms)</title></rect><rect x="368.6" y="118" width="595.3" height="2" fill="#eab308" ><title>ad-pet31-u40 → 409 (33ms)</title></rect><rect x="368.6" y="121" width="613.3" height="2" fill="#eab308" ><title>ad-pet31-u38 → 409 (34ms)</title></rect>
+        </svg>
+      </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 33 — Bidu</strong>
+          <span class="badge">10 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: ad-pet33-u1 (27ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 46" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="46" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="368.6" y="4" width="487.1" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>ad-pet33-u1 → 200 (27ms)</title></rect><rect x="368.6" y="7" width="595.3" height="2" fill="#eab308" ><title>ad-pet33-u4 → 409 (33ms)</title></rect><rect x="368.6" y="10" width="613.3" height="2" fill="#eab308" ><title>ad-pet33-u5 → 409 (34ms)</title></rect><rect x="368.6" y="13" width="613.3" height="2" fill="#eab308" ><title>ad-pet33-u3 → 409 (34ms)</title></rect><rect x="368.6" y="16" width="613.3" height="2" fill="#eab308" ><title>ad-pet33-u2 → 409 (34ms)</title></rect><rect x="386.7" y="19" width="577.3" height="2" fill="#eab308" ><title>ad-pet33-u6 → 409 (32ms)</title></rect><rect x="386.7" y="22" width="595.3" height="2" fill="#eab308" ><title>ad-pet33-u7 → 409 (33ms)</title></rect><rect x="386.7" y="25" width="595.3" height="2" fill="#eab308" ><title>ad-pet33-u8 → 409 (33ms)</title></rect><rect x="386.7" y="28" width="595.3" height="2" fill="#eab308" ><title>ad-pet33-u9 → 409 (33ms)</title></rect><rect x="386.7" y="31" width="595.3" height="2" fill="#eab308" ><title>ad-pet33-u10 → 409 (33ms)</title></rect>
+        </svg>
+      </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 34 — Maya</strong>
+          <span class="badge">10 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: ad-pet34-u1 (26ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 46" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="46" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="386.7" y="4" width="469.0" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>ad-pet34-u1 → 200 (26ms)</title></rect><rect x="386.7" y="7" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u4 → 409 (33ms)</title></rect><rect x="386.7" y="10" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u3 → 409 (33ms)</title></rect><rect x="386.7" y="13" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u9 → 409 (33ms)</title></rect><rect x="386.7" y="16" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u2 → 409 (33ms)</title></rect><rect x="386.7" y="19" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u5 → 409 (33ms)</title></rect><rect x="386.7" y="22" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u6 → 409 (33ms)</title></rect><rect x="386.7" y="25" width="595.3" height="2" fill="#eab308" ><title>ad-pet34-u7 → 409 (33ms)</title></rect><rect x="386.7" y="28" width="613.3" height="2" fill="#eab308" ><title>ad-pet34-u8 → 409 (34ms)</title></rect><rect x="386.7" y="31" width="613.3" height="2" fill="#eab308" ><title>ad-pet34-u10 → 409 (34ms)</title></rect>
+        </svg>
+      </div>
+    
+  </section>
+
+  <section>
+    <h2>Throughput (vazão)</h2>
+    <div class="tp">
+      <div class="tp-box"><h3>Adoção</h3><strong>1960.8 req/s</strong> &nbsp;=&nbsp; 100 requisições ÷ 0.05s de janela real</div>
+      <div class="tp-box"><h3>Navegação</h3><strong>452.3 req/s</strong> &nbsp;=&nbsp; 450 requisições ÷ 0.99s de janela real</div>
+    </div>
+    <div class="nota">⚠️ <strong>Por que a janela é menor que a duração configurada?</strong> A vazão é medida pela <strong>janela real</strong> — do primeiro pedido enviado até a última resposta — e <strong>não</strong> pela duração nominal do teste. Os usuários virtuais terminam suas requisições bem antes do prazo máximo, então usar o prazo cheio como divisor daria um número artificialmente baixo. Por isso: vazão = total de requisições ÷ janela real.</div>
+  </section>
+
+  <section>
+    <h2>Distribuição de latência</h2>
+    <div class="hists">
+      
+    <div class="hist">
+      <h3>Adoção</h3>
+      <div class="hist-bars">
+        
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">< 10ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">10-25ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">100</div>
+            <div class="hist-bar-fill" style="height: 100%"></div>
+            <div class="hist-bar-label">25-50ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">50-100ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">100-250ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">250-500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">500-1000ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">1000-2500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">> 2500ms</div>
+          </div>
+      </div>
+    </div>
+  
+      
+    <div class="hist">
+      <h3>Navegação</h3>
+      <div class="hist-bars">
+        
+          <div class="hist-bar">
+            <div class="hist-bar-value">350</div>
+            <div class="hist-bar-fill" style="height: 100%"></div>
+            <div class="hist-bar-label">< 10ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">2</div>
+            <div class="hist-bar-fill" style="height: 0.5714285714285714%"></div>
+            <div class="hist-bar-label">10-25ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">65</div>
+            <div class="hist-bar-fill" style="height: 18.571428571428573%"></div>
+            <div class="hist-bar-label">25-50ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">33</div>
+            <div class="hist-bar-fill" style="height: 9.428571428571429%"></div>
+            <div class="hist-bar-label">50-100ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">100-250ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">250-500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">500-1000ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">1000-2500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">> 2500ms</div>
+          </div>
+      </div>
+    </div>
+  
+    </div>
+    <div class="nota">📐 <strong>Como os percentis são calculados:</strong> usamos <strong>interpolação linear</strong> (o mesmo método do NumPy e do Excel). Exemplo de leitura: um p95 de 80ms significa "95% das requisições responderam em até 80ms". Percentis são melhores que a média porque mostram a "cauda" (os casos mais lentos), que é o que trava o usuário real.</div>
+  </section>
+
+  <section>
+    <h2>📖 Glossário — o que cada número significa</h2>
+    <dl class="glossario">
+      <dt>Latência</dt>
+      <dd>Tempo total de ida e volta de UMA requisição, medido no cliente: do envio até a resposta chegar.</dd>
+      <dt>Tempo no banco (<code>dbMs</code>)</dt>
+      <dd>Quanto tempo o pedido passou no Postgres: fila do pool de conexões + espera da trava de linha + execução do <code>UPDATE</code>. É onde a corrida é de fato decidida.</dd>
+      <dt>Ordem de chegada</dt>
+      <dd>Posição (1, 2, 3...) em que o <strong>servidor</strong> recebeu o pedido. Mesmo disparando "juntos", os pedidos entram um de cada vez por causa do event loop do Node.</dd>
+      <dt>p50 / p95 / p99 (percentis)</dt>
+      <dd><code>p50</code> é a mediana (metade foi mais rápida, metade mais lenta). <code>p95</code>: 95% foram mais rápidas que esse valor. <code>p99</code>: 99%. Quanto maior o percentil, mais "pior caso" ele mostra.</dd>
+      <dt>Throughput (vazão)</dt>
+      <dd>Requisições processadas por segundo, medido na janela real (1ª requisição → última resposta).</dd>
+      <dt>Status 200 / 409 / 404 / 5xx</dt>
+      <dd><code>200</code> = adotou (venceu). <code>409</code> = chegou tarde, pet já era 'I' (perdeu, comportamento correto). <code>404</code> = pet não existe. <code>5xx</code>/0 = erro de servidor ou rede.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Eventos (550)</h2>
+    <div class="filtros">
+      <select id="filtro-pet"><option value="">Todos os pets</option><option value="29">pet 29</option><option value="30">pet 30</option><option value="31">pet 31</option><option value="33">pet 33</option><option value="34">pet 34</option></select>
+      <select id="filtro-status"><option value="">Todos os status</option><option value="200">200 OK</option><option value="409">409 Conflito</option><option value="404">404</option><option value="500">5xx</option></select>
+      <select id="filtro-acao"><option value="">Todas as ações</option><option value="adotar">adotar</option><option value="navegar">navegar</option></select>
+    </div>
+    <div class="tabela-wrap">
+      <table class="eventos">
+        <thead><tr><th>t (envio)</th><th>Ação</th><th>Pet</th><th>Usuário</th><th title="Nº de sequência global de chegada no servidor (só adoção)">Seq.serv.</th><th>Status</th><th>Latência</th><th>Banco</th><th>Mensagem</th></tr></thead>
+        <tbody id="tbody">
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>0ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u1</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>11ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>1ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u2</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>25ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u12</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>24ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u13</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>25ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u14</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>26ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u15</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>26ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u16</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>27ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u17</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>28ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u18</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>30ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u19</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>31ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u20</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>32ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u21</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>33ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>1ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u4</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>38ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u23</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>37ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u24</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>38ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u5</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>40ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u26</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>39ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u22</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>39ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u27</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>40ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u25</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>40ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>1ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u3</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>43ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u7</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u28</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>40ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u29</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>41ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u30</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>41ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u35</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>40ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u33</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u32</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>4ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u31</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>41ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u36</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u37</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>43ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u41</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>43ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u42</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>42ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u39</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>44ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>5ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u40</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u44</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>44ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u46</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u43</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u47</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u50</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u49</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u48</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>45ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u51</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>46ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u54</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>46ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u52</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u53</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u55</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u57</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u58</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u56</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u60</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u59</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u63</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>47ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u61</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u62</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u67</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u68</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>48ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u69</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>6ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u64</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u70</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u71</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u72</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u76</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>49ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u73</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u74</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u79</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>50ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>55ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>56ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u77</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u84</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u85</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u87</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u80</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u88</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u89</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u91</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u90</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u86</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>7ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u83</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u9</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>57ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>51ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u94</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u98</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>2ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u10</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>58ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>52ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>8ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>53ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>3ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u11</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>59ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>78ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u1</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>110ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>109ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>109ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u46</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>4ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>110ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u61</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>117ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u7</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>117ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>118ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u58</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>120ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u89</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>122ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>123ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u79</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>123ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u42</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>124ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u29</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>129ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>129ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u86</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>129ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u51</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>132ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u76</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>134ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u90</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>135ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u5</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>136ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u44</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>140ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u12</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>140ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u69</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>143ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u60</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>145ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u33</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>145ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u39</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>147ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u52</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>147ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u83</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>147ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u16</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>148ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u87</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>149ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u67</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>151ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u35</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>156ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u19</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>158ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u32</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>162ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>166ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u2</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>168ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>169ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u15</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>173ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u68</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>174ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u80</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>177ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u57</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>180ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u31</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>182ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u72</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>182ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u24</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>183ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u40</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>185ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u49</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>191ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>191ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u61</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>192ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u84</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>192ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u62</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>192ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u28</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>194ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u37</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>196ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u4</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>206ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u10</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>206ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u44</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>207ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u85</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>209ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u94</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>212ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u39</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>215ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u86</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>217ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u63</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>219ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u25</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>220ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u27</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>222ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u9</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>224ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u88</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>224ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u3</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>224ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u36</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>224ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u55</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>227ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u53</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>228ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u17</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>229ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>229ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>231ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>231ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u20</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>231ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>231ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>231ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u64</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>237ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u56</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>240ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u87</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>240ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>241ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u70</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>242ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u23</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>242ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u54</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>242ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>249ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u22</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>249ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>252ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u98</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>252ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u69</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>252ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u71</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>254ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u11</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>254ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u14</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>254ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u74</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>254ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u77</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>255ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u47</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>258ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>258ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u91</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>260ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u13</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>260ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>262ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u61</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>263ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u67</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>266ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u7</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>266ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>269ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u73</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>269ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>270ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u76</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>272ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u33</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>272ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>273ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u12</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>273ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u84</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>273ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u28</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>274ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u43</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>274ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u26</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>279ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u30</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>279ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u53</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>280ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u52</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>281ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u17</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>283ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u18</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>283ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u46</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>283ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>285ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u21</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>287ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u59</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>290ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u50</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>290ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>293ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u89</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>293ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u10</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>293ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u42</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>293ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u41</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>295ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u48</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>297ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u32</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>300ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u85</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>300ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u87</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>303ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u1</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>303ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u3</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>303ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u60</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>309ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u35</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>313ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u44</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>314ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>322ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u56</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>322ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u62</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>322ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u15</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>323ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u19</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>323ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u79</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>324ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>324ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u2</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>326ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u94</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>326ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u5</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>328ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>329ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u40</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>329ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u54</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>332ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u30</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>334ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>334ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>334ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u64</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>334ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u18</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>339ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u14</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>342ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>346ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u68</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>350ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u49</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>354ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>354ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u23</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>354ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u29</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>354ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u48</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>359ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u72</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>360ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u90</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>362ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>363ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u83</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>363ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>365ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u58</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>367ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>370ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u70</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>372ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u24</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>372ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>374ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u55</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>376ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u62</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>378ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u51</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>382ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u9</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>384ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u86</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>387ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u39</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>387ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u4</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>388ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u80</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>388ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u36</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>390ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u37</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>390ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>390ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u71</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>390ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>390ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u46</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>392ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>392ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u85</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>399ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u16</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>399ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u64</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>400ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u59</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>401ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u7</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>403ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>405ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u15</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>405ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u31</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>405ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>407ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u32</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>409ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u63</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>409ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u22</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>413ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u69</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>413ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u57</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>413ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u76</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>413ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u21</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>414ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>418ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u77</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>418ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u26</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>419ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u47</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>425ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u35</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>427ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u88</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>430ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u14</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>430ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u2</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>433ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u91</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>435ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u73</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>441ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u28</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>441ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u20</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>441ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u67</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>446ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u5</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>448ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u74</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>449ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u85</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>453ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>457ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>457ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>459ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>459ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u27</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>461ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u22</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>463ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u25</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>463ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u62</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>467ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u41</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>469ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u50</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>469ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u72</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>472ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u56</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>472ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u58</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>480ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u79</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>480ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u11</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>483ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u53</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>487ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u98</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>487ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u60</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>487ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u89</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>487ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u13</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>488ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u2</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>493ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u23</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>495ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u36</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>497ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u43</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>500ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>501ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u19</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>503ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>510ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>510ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u49</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>515ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>515ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u27</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>524ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>526ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u3</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>526ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>527ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u48</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>531ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>531ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u4</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>536ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>537ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u73</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>540ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u64</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>541ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u76</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>551ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u35</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>551ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u30</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>553ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u90</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>560ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u54</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>563ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u43</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>563ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u68</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>564ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u32</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>570ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u80</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>570ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u89</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>572ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u57</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>572ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u18</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>572ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>575ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u72</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>575ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u49</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>577ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u11</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>579ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u46</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>580ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u34</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>583ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>583ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u39</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>584ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u21</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>588ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u55</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>593ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u86</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>593ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>599ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>604ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>606ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u59</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>607ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u9</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>607ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u48</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>610ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u51</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>610ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>611ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u73</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>612ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>615ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u70</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>621ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u7</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>624ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u63</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>628ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u26</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>628ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>628ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u20</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>630ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>630ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>632ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u74</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>636ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u47</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>636ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u71</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>642ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u25</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>646ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u79</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>650ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u90</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>652ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u88</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>656ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u69</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>661ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u13</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>665ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u51</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>4ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>668ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u66</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>671ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u28</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>0ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>674ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>674ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>676ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u5</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>682ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u41</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>693ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>693ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u97</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>706ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>720ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u27</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>721ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u47</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>727ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>729ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u99</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>730ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u68</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>732ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u25</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>733ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u82</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>739ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>743ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>747ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>751ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u45</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>751ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u54</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>774ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u65</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>3ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>773ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u96</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>6ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>779ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u57</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>788ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u30</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>4ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>788ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u6</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>4ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>814ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u74</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>821ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u11</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>823ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u9</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>838ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u41</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>840ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>848ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>850ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u59</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>874ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u38</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>879ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u95</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>881ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u8</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>911ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u75</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>918ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u93</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>4ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>958ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u92</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>978ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u78</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>978ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u81</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>1ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="" data-status="200" data-acao="navegar">
+      <td>993ms</td>
+      <td>navegar</td>
+      <td></td>
+      <td>nav-u100</td>
+      <td></td>
+      <td class="status-ok">200</td>
+      <td>2ms</td>
+      <td></td>
+      <td></td>
+    </tr>
+    <tr data-pet="29" data-status="200" data-acao="adotar">
+      <td>2014ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u2</td>
+      <td>#19</td>
+      <td class="status-ok">200</td>
+      <td>30ms</td>
+      <td>7ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="30" data-status="200" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u2</td>
+      <td>#39</td>
+      <td class="status-ok">200</td>
+      <td>32ms</td>
+      <td>11ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="31" data-status="200" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u1</td>
+      <td>#58</td>
+      <td class="status-ok">200</td>
+      <td>33ms</td>
+      <td>13ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="33" data-status="200" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u1</td>
+      <td>#98</td>
+      <td class="status-ok">200</td>
+      <td>27ms</td>
+      <td>12ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="34" data-status="200" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u1</td>
+      <td>#108</td>
+      <td class="status-ok">200</td>
+      <td>26ms</td>
+      <td>12ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u9</td>
+      <td>#26</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>7ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u12</td>
+      <td>#29</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>8ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2011ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u1</td>
+      <td>#18</td>
+      <td class="status-conflict">409</td>
+      <td>44ms</td>
+      <td>9ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u13</td>
+      <td>#30</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>9ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u14</td>
+      <td>#31</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u11</td>
+      <td>#28</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>9ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2014ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u3</td>
+      <td>#20</td>
+      <td class="status-conflict">409</td>
+      <td>41ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u16</td>
+      <td>#33</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u15</td>
+      <td>#32</td>
+      <td class="status-conflict">409</td>
+      <td>41ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2014ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u6</td>
+      <td>#23</td>
+      <td class="status-conflict">409</td>
+      <td>42ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u20</td>
+      <td>#37</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2017ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u5</td>
+      <td>#42</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2017ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u4</td>
+      <td>#41</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u1</td>
+      <td>#38</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u17</td>
+      <td>#34</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u19</td>
+      <td>#36</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2016ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u18</td>
+      <td>#35</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>10ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2017ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u6</td>
+      <td>#43</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2017ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u3</td>
+      <td>#40</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u7</td>
+      <td>#44</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u9</td>
+      <td>#46</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u8</td>
+      <td>#45</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u11</td>
+      <td>#48</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u10</td>
+      <td>#47</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2014ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u4</td>
+      <td>#21</td>
+      <td class="status-conflict">409</td>
+      <td>43ms</td>
+      <td>14ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u7</td>
+      <td>#24</td>
+      <td class="status-conflict">409</td>
+      <td>42ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u12</td>
+      <td>#49</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u15</td>
+      <td>#52</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u16</td>
+      <td>#53</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u17</td>
+      <td>#54</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u18</td>
+      <td>#55</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u20</td>
+      <td>#57</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u19</td>
+      <td>#56</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u13</td>
+      <td>#50</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u8</td>
+      <td>#25</td>
+      <td class="status-conflict">409</td>
+      <td>42ms</td>
+      <td>16ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2015ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u10</td>
+      <td>#27</td>
+      <td class="status-conflict">409</td>
+      <td>42ms</td>
+      <td>15ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u2</td>
+      <td>#59</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u10</td>
+      <td>#67</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u11</td>
+      <td>#68</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u12</td>
+      <td>#69</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="30" data-status="409" data-acao="adotar">
+      <td>2018ms</td>
+      <td>adotar</td>
+      <td>30</td>
+      <td>ad-pet30-u14</td>
+      <td>#51</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="29" data-status="409" data-acao="adotar">
+      <td>2014ms</td>
+      <td>adotar</td>
+      <td>29</td>
+      <td>ad-pet29-u5</td>
+      <td>#22</td>
+      <td class="status-conflict">409</td>
+      <td>44ms</td>
+      <td>16ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u7</td>
+      <td>#64</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u14</td>
+      <td>#71</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u15</td>
+      <td>#72</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u9</td>
+      <td>#66</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u16</td>
+      <td>#73</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u5</td>
+      <td>#62</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>14ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u3</td>
+      <td>#60</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u13</td>
+      <td>#70</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u20</td>
+      <td>#77</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u19</td>
+      <td>#76</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u4</td>
+      <td>#61</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>14ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u21</td>
+      <td>#78</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u23</td>
+      <td>#80</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u18</td>
+      <td>#75</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2020ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u17</td>
+      <td>#74</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>13ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u6</td>
+      <td>#63</td>
+      <td class="status-conflict">409</td>
+      <td>40ms</td>
+      <td>14ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u27</td>
+      <td>#84</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u26</td>
+      <td>#83</td>
+      <td class="status-conflict">409</td>
+      <td>38ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2025ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u28</td>
+      <td>#85</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2025ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u29</td>
+      <td>#86</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u24</td>
+      <td>#81</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u22</td>
+      <td>#79</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2021ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u25</td>
+      <td>#82</td>
+      <td class="status-conflict">409</td>
+      <td>39ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2025ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u31</td>
+      <td>#88</td>
+      <td class="status-conflict">409</td>
+      <td>35ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2025ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u30</td>
+      <td>#87</td>
+      <td class="status-conflict">409</td>
+      <td>35ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2019ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u8</td>
+      <td>#65</td>
+      <td class="status-conflict">409</td>
+      <td>41ms</td>
+      <td>14ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2026ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u33</td>
+      <td>#90</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u34</td>
+      <td>#91</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2026ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u32</td>
+      <td>#89</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u35</td>
+      <td>#92</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u37</td>
+      <td>#94</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u36</td>
+      <td>#93</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u39</td>
+      <td>#96</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u40</td>
+      <td>#97</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u4</td>
+      <td>#101</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u6</td>
+      <td>#103</td>
+      <td class="status-conflict">409</td>
+      <td>32ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u5</td>
+      <td>#102</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u7</td>
+      <td>#104</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u8</td>
+      <td>#105</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u3</td>
+      <td>#100</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="31" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>31</td>
+      <td>ad-pet31-u38</td>
+      <td>#95</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u9</td>
+      <td>#106</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u4</td>
+      <td>#111</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u10</td>
+      <td>#107</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u3</td>
+      <td>#110</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u9</td>
+      <td>#116</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u2</td>
+      <td>#109</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="33" data-status="409" data-acao="adotar">
+      <td>2027ms</td>
+      <td>adotar</td>
+      <td>33</td>
+      <td>ad-pet33-u2</td>
+      <td>#99</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u5</td>
+      <td>#112</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u6</td>
+      <td>#113</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u7</td>
+      <td>#114</td>
+      <td class="status-conflict">409</td>
+      <td>33ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u8</td>
+      <td>#115</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>11ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="34" data-status="409" data-acao="adotar">
+      <td>2028ms</td>
+      <td>adotar</td>
+      <td>34</td>
+      <td>ad-pet34-u10</td>
+      <td>#117</td>
+      <td class="status-conflict">409</td>
+      <td>34ms</td>
+      <td>12ms</td>
+      <td>Animal já foi adotado</td>
+    </tr></tbody>
+      </table>
+    </div>
+  </section>
+
+<script>
+  const tbody = document.getElementById('tbody');
+  const fPet = document.getElementById('filtro-pet');
+  const fStatus = document.getElementById('filtro-status');
+  const fAcao = document.getElementById('filtro-acao');
+  function aplicarFiltros() {
+    const pet = fPet.value;
+    const status = fStatus.value;
+    const acao = fAcao.value;
+    for (const tr of tbody.children) {
+      const okPet = !pet || tr.dataset.pet === pet;
+      const okStatus = !status || (status === '500' ? Number(tr.dataset.status) >= 500 : tr.dataset.status === status);
+      const okAcao = !acao || tr.dataset.acao === acao;
+      tr.classList.toggle('hidden', !(okPet && okStatus && okAcao));
+    }
+  }
+  fPet.addEventListener('change', aplicarFiltros);
+  fStatus.addEventListener('change', aplicarFiltros);
+  fAcao.addEventListener('change', aplicarFiltros);
+</script>
+</body>
+</html>

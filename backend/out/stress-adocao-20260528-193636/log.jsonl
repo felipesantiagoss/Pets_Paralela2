@@ -1,0 +1,5 @@
+{"tAbs":1780007796197,"tipo":"request","acao":"adotar","usuarioId":"user-1","petId":1,"nome":"Thor","enviadoEm":46,"respondidoEm":140,"latencia":94,"status":200,"motivo":"Adoção realizada"}
+{"tAbs":1780007796197,"tipo":"request","acao":"adotar","usuarioId":"user-2","petId":1,"enviadoEm":98,"respondidoEm":140,"latencia":42,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007796198,"tipo":"request","acao":"adotar","usuarioId":"user-3","petId":1,"enviadoEm":98,"respondidoEm":141,"latencia":43,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007796198,"tipo":"request","acao":"adotar","usuarioId":"user-4","petId":1,"enviadoEm":98,"respondidoEm":141,"latencia":43,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007796198,"tipo":"request","acao":"adotar","usuarioId":"user-5","petId":1,"enviadoEm":98,"respondidoEm":141,"latencia":43,"status":409,"motivo":"Animal já foi adotado"}

@@ -1,0 +1,5 @@
+{"tAbs":1780007963032,"tipo":"request","acao":"adotar","usuarioId":"user-4","petId":13,"nome":"Bela","enviadoEm":42,"respondidoEm":86,"latencia":44,"status":200,"motivo":"Adoção realizada"}
+{"tAbs":1780007963033,"tipo":"request","acao":"adotar","usuarioId":"user-1","petId":13,"enviadoEm":18,"respondidoEm":87,"latencia":69,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007963033,"tipo":"request","acao":"adotar","usuarioId":"user-3","petId":13,"enviadoEm":42,"respondidoEm":87,"latencia":45,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007963033,"tipo":"request","acao":"adotar","usuarioId":"user-5","petId":13,"enviadoEm":43,"respondidoEm":87,"latencia":44,"status":409,"motivo":"Animal já foi adotado"}
+{"tAbs":1780007963033,"tipo":"request","acao":"adotar","usuarioId":"user-2","petId":13,"enviadoEm":42,"respondidoEm":87,"latencia":45,"status":409,"motivo":"Animal já foi adotado"}

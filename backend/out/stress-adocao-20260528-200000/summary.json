@@ -1,0 +1,68 @@
+{
+  "nome": "Teste de adoção concorrente (RF014)",
+  "descricao": "5 usuários tentando adotar o animal 23 (Pandora) ao mesmo tempo.",
+  "inicioISO": "2026-05-28T23:00:00.778Z",
+  "config": {
+    "ANIMAL_ID": 23,
+    "NUM_USUARIOS": 5,
+    "BASE_URL": "http://localhost:3001"
+  },
+  "cards": [
+    {
+      "label": "Animal alvo",
+      "valor": "23 — Pandora"
+    },
+    {
+      "label": "Usuários",
+      "valor": "5"
+    },
+    {
+      "label": "Sucessos",
+      "valor": "1",
+      "sub": "esperado: 1"
+    },
+    {
+      "label": "Conflitos (409)",
+      "valor": "4"
+    },
+    {
+      "label": "Erros",
+      "valor": "0"
+    },
+    {
+      "label": "Tempo total",
+      "valor": "65ms"
+    },
+    {
+      "label": "Latência p50",
+      "valor": "39ms"
+    },
+    {
+      "label": "Latência p95",
+      "valor": "65ms"
+    },
+    {
+      "label": "Status final",
+      "valor": "I"
+    },
+    {
+      "label": "Vencedor",
+      "valor": "user-5"
+    }
+  ],
+  "veredito": {
+    "ok": true,
+    "mensagem": "✅ Teste PASSOU: exatamente 1 usuário conseguiu adotar."
+  },
+  "estatisticas": {
+    "adocao": {
+      "count": 5,
+      "min": 38,
+      "p50": 39,
+      "p95": 65,
+      "p99": 65,
+      "max": 65,
+      "media": 44
+    }
+  }
+}

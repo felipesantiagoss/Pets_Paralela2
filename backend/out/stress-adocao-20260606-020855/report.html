@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Relatório — Teste de adoção concorrente (RF014)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; color: #0f172a; padding: 24px; line-height: 1.5; }
+  h1 { font-size: 24px; margin-bottom: 4px; }
+  h2 { font-size: 16px; margin: 16px 0 12px; color: #334155; text-transform: uppercase; letter-spacing: 0.5px; }
+  h3 { font-size: 14px; margin-bottom: 8px; color: #475569; }
+  .subtitulo { color: #64748b; font-size: 13px; margin-bottom: 16px; }
+  section { background: white; border-radius: 8px; padding: 18px 20px; margin-bottom: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .intro { background: #eff6ff; border-left: 4px solid #3b82f6; font-size: 13px; color: #1e3a5f; }
+  .intro p { margin-bottom: 8px; }
+  .intro p:last-child { margin-bottom: 0; }
+  .intro code { background: #dbeafe; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .card { background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 14px; border-radius: 6px; }
+  .card .label { font-size: 10px; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px; }
+  .card .value { font-size: 20px; font-weight: 700; margin-top: 3px; color: #0f172a; }
+  .card .sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .veredito { padding: 14px 18px; border-radius: 6px; font-weight: 600; font-size: 15px; }
+  .veredito.ok { background: #dcfce7; color: #14532d; border-left: 4px solid #22c55e; }
+  .veredito.fail { background: #fee2e2; color: #7f1d1d; border-left: 4px solid #ef4444; }
+  .timeline { margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9; }
+  .timeline:last-child { border-bottom: none; }
+  .timeline-head { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; font-size: 13px; flex-wrap: wrap; }
+  .badge { background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .badge-ok { background: #dcfce7; color: #14532d; }
+  .badge-fail { background: #fee2e2; color: #7f1d1d; }
+  .corrida { margin-bottom: 18px; padding-bottom: 16px; border-bottom: 1px solid #eef2f7; }
+  .corrida:last-child { border-bottom: none; }
+  .corrida-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; font-size: 14px; flex-wrap: wrap; }
+  .explica { font-size: 13px; color: #334155; background: #fafcff; border: 1px solid #e8eef6; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px; }
+  .explica code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  table.mini { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 6px; }
+  table.mini th { background: #f8fafc; text-align: left; padding: 5px 8px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; color: #64748b; border-bottom: 1px solid #e2e8f0; }
+  table.mini td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; }
+  table.mini tr.venc { background: #f0fdf4; font-weight: 600; }
+  .legenda-mini { font-size: 11px; color: #64748b; }
+  .hist { padding: 8px 0; }
+  .hist-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding: 0 4px; border-bottom: 1px solid #e2e8f0; }
+  .hist-bar { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; height: 100%; position: relative; }
+  .hist-bar-fill { width: 80%; background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%); border-radius: 3px 3px 0 0; min-height: 1px; }
+  .hist-bar-value { position: absolute; top: -16px; font-size: 10px; color: #475569; }
+  .hist-bar-label { font-size: 9px; color: #64748b; margin-top: 4px; text-align: center; transform: rotate(-30deg); transform-origin: center; white-space: nowrap; }
+  .hists { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 720px) { .hists { grid-template-columns: 1fr; } }
+  .tp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 720px) { .tp { grid-template-columns: 1fr; } }
+  .tp-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; font-size: 13px; }
+  .tp-box h3 { margin-bottom: 6px; }
+  .nota { font-size: 12px; color: #64748b; margin-top: 10px; padding: 10px 12px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; }
+  .glossario { font-size: 13px; }
+  .glossario dt { font-weight: 700; color: #0f172a; margin-top: 10px; }
+  .glossario dd { color: #475569; margin-left: 0; margin-top: 2px; }
+  .glossario code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+  .filtros { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+  .filtros select, .filtros input { padding: 5px 8px; font-size: 12px; border: 1px solid #cbd5e1; border-radius: 4px; background: white; }
+  table.eventos { width: 100%; border-collapse: collapse; font-size: 12px; }
+  table.eventos th, table.eventos td { padding: 5px 8px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+  table.eventos th { background: #f8fafc; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+  .status-ok { color: #14532d; font-weight: 600; }
+  .status-conflict { color: #854d0e; font-weight: 500; }
+  .status-erro { color: #7f1d1d; font-weight: 700; }
+  .tabela-wrap { max-height: 400px; overflow-y: auto; }
+  tr.hidden { display: none; }
+  .legenda { display: flex; gap: 14px; font-size: 11px; color: #475569; margin-top: 6px; flex-wrap: wrap; }
+  .legenda span { display: flex; align-items: center; gap: 4px; }
+  .legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; }
+</style>
+</head>
+<body>
+  <h1>📊 Teste de adoção concorrente (RF014)</h1>
+  <div class="subtitulo">8 usuários tentando adotar o animal 96 (Pipoca) ao mesmo tempo. · 06/06/2026, 02:08:55</div>
+
+  <section class="intro">
+    <p><strong>O que este teste verifica (RF014):</strong> quando vários usuários tentam adotar o <strong>mesmo</strong> pet ao mesmo tempo, o sistema deve deixar <strong>exatamente um</strong> vencer. Os demais recebem <code>409 Conflito</code> ("Animal já foi adotado").</p>
+    <p><strong>Como a disputa é resolvida:</strong> a adoção roda <code>UPDATE animais SET status='I' WHERE id=? AND status='D'</code>. O Postgres dá uma <strong>trava de linha</strong> nessa linha: o primeiro <code>UPDATE</code> a pegar a trava muda <code>D→I</code> e vence; os outros, ao rodar o mesmo comando, já encontram <code>status='I'</code>, o <code>WHERE</code> não casa e voltam com <code>409</code>. <strong>É o banco que serializa a corrida — não o JavaScript.</strong></p>
+  </section>
+
+  <section>
+    <div class="veredito ok">✅ Teste PASSOU: exatamente 1 usuário conseguiu adotar.</div>
+  </section>
+
+  <section>
+    <h2>Resumo</h2>
+    <div class="cards">
+    <div class="card" title="Pet que todos tentaram adotar ao mesmo tempo.">
+      <div class="label">Animal alvo</div>
+      <div class="value">96 — Pipoca</div>
+      
+    </div>
+    <div class="card" title="Quantas pessoas dispararam a adoção em paralelo.">
+      <div class="label">Usuários</div>
+      <div class="value">8</div>
+      
+    </div>
+    <div class="card" title="Deve ser exatamente 1. Mais que isso = bug de concorrência (RF014 violado).">
+      <div class="label">Sucessos</div>
+      <div class="value">1</div>
+      <div class="sub">esperado: 1</div>
+    </div>
+    <div class="card" title="Quem chegou tarde: o pet já era I. Comportamento correto dos perdedores.">
+      <div class="label">Conflitos (409)</div>
+      <div class="value">7</div>
+      
+    </div>
+    <div class="card" title="Respostas inesperadas (5xx, rede). Deveria ser 0.">
+      <div class="label">Erros</div>
+      <div class="value">0</div>
+      
+    </div>
+    <div class="card" title="Do disparo até a última resposta chegar.">
+      <div class="label">Tempo total</div>
+      <div class="value">70ms</div>
+      
+    </div>
+    <div class="card" title="Mediana: metade das adoções respondeu mais rápido que isso.">
+      <div class="label">Latência p50</div>
+      <div class="value">47ms</div>
+      
+    </div>
+    <div class="card" title="95% das adoções responderam em até esse tempo (interpolação linear).">
+      <div class="label">Latência p95</div>
+      <div class="value">60ms</div>
+      
+    </div>
+    <div class="card" title="Status do pet no banco ao fim: I = adotado (esperado).">
+      <div class="label">Status final</div>
+      <div class="value">I</div>
+      
+    </div>
+    <div class="card" title="Usuário cujo UPDATE pegou a trava de linha primeiro.">
+      <div class="label">Vencedor</div>
+      <div class="value">user-3</div>
+      
+    </div></div>
+  </section>
+
+  <section>
+    <h2>🏁 Quem ganhou e por quê</h2>
+    <p class="subtitulo" style="margin-bottom:14px">Esta é a parte central: não basta dizer que alguém "chegou primeiro". Aqui mostramos, com os números reais da corrida, <strong>por que</strong> aquele usuário venceu — e por que a latência sozinha não explica.</p>
+    <div class="corrida">
+    <div class="corrida-head">
+      <strong>Pet 96 — Pipoca</strong>
+      <span class="badge badge-ok">🏆 Vencedor: user-3</span>
+      <span class="badge">8 tentativas · 1 ganhou · 7 levaram 409</span>
+    </div>
+    <p class="explica"><strong>Por que user-3 ganhou?</strong> Chegou ao servidor na <strong>4ª posição</strong> (de 8) — <em>não</em> foi o primeiríssimo a chegar, mas seu <code>UPDATE</code> foi o primeiro a conquistar a trava de linha. A fila do pool de conexões pode reordenar quem encosta no banco primeiro. Neste caso o vencedor <em>também</em> teve a menor latência (46ms) — mas isso é consequência, não causa: ele não esperou a trava de ninguém, então respondeu rápido.</p>
+    <table class="mini">
+      <thead><tr><th>Chegada</th><th>Usuário</th><th>Chegou em</th><th>Status</th><th>Latência (cliente)</th><th>Tempo no banco</th></tr></thead>
+      <tbody><tr class="">
+        <td>1º</td>
+        <td>user-2</td>
+        <td>+71ms</td>
+        <td class="status-conflict">409</td>
+        <td>47ms</td>
+        <td>28ms</td>
+      </tr><tr class="">
+        <td>2º</td>
+        <td>user-1</td>
+        <td>+76ms</td>
+        <td class="status-conflict">409</td>
+        <td>66ms</td>
+        <td>23ms</td>
+      </tr><tr class="">
+        <td>3º</td>
+        <td>user-4</td>
+        <td>+76ms</td>
+        <td class="status-conflict">409</td>
+        <td>47ms</td>
+        <td>23ms</td>
+      </tr><tr class="venc">
+        <td>4º</td>
+        <td>user-3</td>
+        <td>+77ms</td>
+        <td class="status-ok">200 🏆</td>
+        <td>46ms</td>
+        <td>20ms</td>
+      </tr><tr class="">
+        <td>5º</td>
+        <td>user-6</td>
+        <td>+77ms</td>
+        <td class="status-conflict">409</td>
+        <td>47ms</td>
+        <td>22ms</td>
+      </tr><tr class="">
+        <td>6º</td>
+        <td>user-5</td>
+        <td>+78ms</td>
+        <td class="status-conflict">409</td>
+        <td>47ms</td>
+        <td>21ms</td>
+      </tr><tr class="">
+        <td>7º</td>
+        <td>user-8</td>
+        <td>+78ms</td>
+        <td class="status-conflict">409</td>
+        <td>50ms</td>
+        <td>21ms</td>
+      </tr><tr class="">
+        <td>8º</td>
+        <td>user-7</td>
+        <td>+78ms</td>
+        <td class="status-conflict">409</td>
+        <td>49ms</td>
+        <td>21ms</td>
+      </tr></tbody>
+    </table>
+    <p class="legenda-mini">Ordenado pela <strong>ordem de chegada no servidor</strong>. <em>Chegou em</em> = instante (ms desde o disparo) em que o servidor recebeu o pedido. <em>Tempo no banco</em> = fila do pool + espera da trava + execução do UPDATE.</p>
+  </div>
+  </section>
+
+  <section>
+    <h2>Timeline da corrida de adoção</h2>
+    <div class="legenda">
+      <span><i style="background:#22c55e"></i>200 OK (vencedor)</span>
+      <span><i style="background:#eab308"></i>409 Conflito (perdeu a corrida)</span>
+      <span><i style="background:#a855f7"></i>404 Não encontrado</span>
+      <span><i style="background:#ef4444"></i>5xx / Erro de rede</span>
+    </div>
+    
+      <div class="timeline">
+        <div class="timeline-head">
+          <strong>Pet 96 — Pipoca</strong>
+          <span class="badge">8 tentativas</span>
+          <span class="badge badge-ok">🏆 Vencedor: user-3 (46ms)</span>
+        </div>
+        <svg width="100%" viewBox="0 0 1000 40" preserveAspectRatio="none">
+          <line x1="80" y1="0" x2="80" y2="40" stroke="#cbd5e1" stroke-width="0.5"/>
+          <rect x="80.0" y="4" width="867.4" height="2" fill="#eab308" ><title>user-1 → 409 (66ms)</title></rect><rect x="342.9" y="7" width="604.6" height="2" fill="#22c55e" stroke="#1e293b" stroke-width="1"><title>user-3 → 200 (46ms)</title></rect><rect x="342.9" y="10" width="617.7" height="2" fill="#eab308" ><title>user-2 → 409 (47ms)</title></rect><rect x="342.9" y="13" width="617.7" height="2" fill="#eab308" ><title>user-5 → 409 (47ms)</title></rect><rect x="342.9" y="16" width="617.7" height="2" fill="#eab308" ><title>user-6 → 409 (47ms)</title></rect><rect x="342.9" y="19" width="617.7" height="2" fill="#eab308" ><title>user-4 → 409 (47ms)</title></rect><rect x="342.9" y="22" width="644.0" height="2" fill="#eab308" ><title>user-7 → 409 (49ms)</title></rect><rect x="342.9" y="25" width="657.1" height="2" fill="#eab308" ><title>user-8 → 409 (50ms)</title></rect>
+        </svg>
+      </div>
+    
+  </section>
+
+  <section>
+    <h2>Throughput (vazão)</h2>
+    <div class="tp">
+      <div class="tp-box"><h3>Adoção</h3><strong>114.3 req/s</strong> &nbsp;=&nbsp; 8 requisições ÷ 0.07s de janela real</div>
+      
+    </div>
+    <div class="nota">⚠️ <strong>Por que a janela é menor que a duração configurada?</strong> A vazão é medida pela <strong>janela real</strong> — do primeiro pedido enviado até a última resposta — e <strong>não</strong> pela duração nominal do teste. Os usuários virtuais terminam suas requisições bem antes do prazo máximo, então usar o prazo cheio como divisor daria um número artificialmente baixo. Por isso: vazão = total de requisições ÷ janela real.</div>
+  </section>
+
+  <section>
+    <h2>Distribuição de latência</h2>
+    <div class="hists">
+      
+    <div class="hist">
+      <h3>Adoção</h3>
+      <div class="hist-bars">
+        
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">< 10ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">10-25ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">6</div>
+            <div class="hist-bar-fill" style="height: 100%"></div>
+            <div class="hist-bar-label">25-50ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">2</div>
+            <div class="hist-bar-fill" style="height: 33.33333333333333%"></div>
+            <div class="hist-bar-label">50-100ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">100-250ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">250-500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">500-1000ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">1000-2500ms</div>
+          </div>
+          <div class="hist-bar">
+            <div class="hist-bar-value">0</div>
+            <div class="hist-bar-fill" style="height: 0%"></div>
+            <div class="hist-bar-label">> 2500ms</div>
+          </div>
+      </div>
+    </div>
+  
+      
+    </div>
+    <div class="nota">📐 <strong>Como os percentis são calculados:</strong> usamos <strong>interpolação linear</strong> (o mesmo método do NumPy e do Excel). Exemplo de leitura: um p95 de 80ms significa "95% das requisições responderam em até 80ms". Percentis são melhores que a média porque mostram a "cauda" (os casos mais lentos), que é o que trava o usuário real.</div>
+  </section>
+
+  <section>
+    <h2>📖 Glossário — o que cada número significa</h2>
+    <dl class="glossario">
+      <dt>Latência</dt>
+      <dd>Tempo total de ida e volta de UMA requisição, medido no cliente: do envio até a resposta chegar.</dd>
+      <dt>Tempo no banco (<code>dbMs</code>)</dt>
+      <dd>Quanto tempo o pedido passou no Postgres: fila do pool de conexões + espera da trava de linha + execução do <code>UPDATE</code>. É onde a corrida é de fato decidida.</dd>
+      <dt>Ordem de chegada</dt>
+      <dd>Posição (1, 2, 3...) em que o <strong>servidor</strong> recebeu o pedido. Mesmo disparando "juntos", os pedidos entram um de cada vez por causa do event loop do Node.</dd>
+      <dt>p50 / p95 / p99 (percentis)</dt>
+      <dd><code>p50</code> é a mediana (metade foi mais rápida, metade mais lenta). <code>p95</code>: 95% foram mais rápidas que esse valor. <code>p99</code>: 99%. Quanto maior o percentil, mais "pior caso" ele mostra.</dd>
+      <dt>Throughput (vazão)</dt>
+      <dd>Requisições processadas por segundo, medido na janela real (1ª requisição → última resposta).</dd>
+      <dt>Status 200 / 409 / 404 / 5xx</dt>
+      <dd><code>200</code> = adotou (venceu). <code>409</code> = chegou tarde, pet já era 'I' (perdeu, comportamento correto). <code>404</code> = pet não existe. <code>5xx</code>/0 = erro de servidor ou rede.</dd>
+    </dl>
+  </section>
+
+  <section>
+    <h2>Eventos (8)</h2>
+    <div class="filtros">
+      <select id="filtro-pet"><option value="">Todos os pets</option><option value="96">pet 96</option></select>
+      <select id="filtro-status"><option value="">Todos os status</option><option value="200">200 OK</option><option value="409">409 Conflito</option><option value="404">404</option><option value="500">5xx</option></select>
+      <select id="filtro-acao"><option value="">Todas as ações</option><option value="adotar">adotar</option><option value="navegar">navegar</option></select>
+    </div>
+    <div class="tabela-wrap">
+      <table class="eventos">
+        <thead><tr><th>t (envio)</th><th>Ação</th><th>Pet</th><th>Usuário</th><th title="Nº de sequência global de chegada no servidor (só adoção)">Seq.serv.</th><th>Status</th><th>Latência</th><th>Banco</th><th>Mensagem</th></tr></thead>
+        <tbody id="tbody">
+    <tr data-pet="96" data-status="200" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-3</td>
+      <td>#4</td>
+      <td class="status-ok">200</td>
+      <td>46ms</td>
+      <td>20ms</td>
+      <td>Adoção realizada</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>36ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-1</td>
+      <td>#2</td>
+      <td class="status-conflict">409</td>
+      <td>66ms</td>
+      <td>23ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-2</td>
+      <td>#1</td>
+      <td class="status-conflict">409</td>
+      <td>47ms</td>
+      <td>28ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-5</td>
+      <td>#6</td>
+      <td class="status-conflict">409</td>
+      <td>47ms</td>
+      <td>21ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-6</td>
+      <td>#5</td>
+      <td class="status-conflict">409</td>
+      <td>47ms</td>
+      <td>22ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-4</td>
+      <td>#3</td>
+      <td class="status-conflict">409</td>
+      <td>47ms</td>
+      <td>23ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-7</td>
+      <td>#8</td>
+      <td class="status-conflict">409</td>
+      <td>49ms</td>
+      <td>21ms</td>
+      <td>Animal já foi adotado</td>
+    </tr>
+    <tr data-pet="96" data-status="409" data-acao="adotar">
+      <td>56ms</td>
+      <td>adotar</td>
+      <td>96</td>
+      <td>user-8</td>
+      <td>#7</td>
+      <td class="status-conflict">409</td>
+      <td>50ms</td>
+      <td>21ms</td>
+      <td>Animal já foi adotado</td>
+    </tr></tbody>
+      </table>
+    </div>
+  </section>
+
+<script>
+  const tbody = document.getElementById('tbody');
+  const fPet = document.getElementById('filtro-pet');
+  const fStatus = document.getElementById('filtro-status');
+  const fAcao = document.getElementById('filtro-acao');
+  function aplicarFiltros() {
+    const pet = fPet.value;
+    const status = fStatus.value;
+    const acao = fAcao.value;
+    for (const tr of tbody.children) {
+      const okPet = !pet || tr.dataset.pet === pet;
+      const okStatus = !status || (status === '500' ? Number(tr.dataset.status) >= 500 : tr.dataset.status === status);
+      const okAcao = !acao || tr.dataset.acao === acao;
+      tr.classList.toggle('hidden', !(okPet && okStatus && okAcao));
+    }
+  }
+  fPet.addEventListener('change', aplicarFiltros);
+  fStatus.addEventListener('change', aplicarFiltros);
+  fAcao.addEventListener('change', aplicarFiltros);
+</script>
+</body>
+</html>
