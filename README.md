@@ -2,6 +2,16 @@
 
 API REST para gerenciamento de animais disponíveis para adoção, desenvolvida com **Node.js**, **Express** e **PostgreSQL**.
 
+O sistema é composto por **dois componentes** que se comunicam por uma **fila** persistida no banco:
+
+- **API** (`server.js`) — atende as requisições HTTP. Na adoção, resolve a
+  concorrência com `UPDATE` atômico (trava de linha) e **enfileira** a
+  notificação do adotante;
+- **Worker** (`worker.js`) — processo separado que **consome a fila em
+  background** (envio simulado do e-mail de confirmação), de forma independente
+  da requisição principal. Vários workers podem rodar em paralelo sem duplicar
+  jobs (`FOR UPDATE SKIP LOCKED`).
+
 ---
 
 ## Pré-requisitos
@@ -83,17 +93,39 @@ npm start
 
 O servidor vai subir em `http://localhost:3001`.
 
+### 7. Iniciar o worker (processamento em background)
+
+Em **outro terminal**:
+
+```bash
+cd backend
+npm run worker
+```
+
+O worker consome a fila de notificações (`fila_notificacoes`). É possível subir
+vários em paralelo, cada um com um nome:
+
+```bash
+WORKER_ID=worker-A npm run worker   # terminal A
+WORKER_ID=worker-B npm run worker   # terminal B
+```
+
+> A API funciona mesmo sem o worker no ar — os jobs ficam acumulados na fila
+> (`status = 'P'`) e são processados assim que um worker subir.
+
 ---
 
 ## Estrutura do projeto
 
 ```
 backend/
-├── server.js                       # Entry point — inicia o servidor
+├── server.js                       # Entry point da API — inicia o servidor
+├── worker.js                       # Worker — consome a fila em background (processo separado)
 ├── scripts/                        # Testes de estresse de concorrência
 │   ├── stress-adocao.js            # Teste de adoção simples (N usuários, 1 animal)
 │   ├── stress-cenario.js           # Cenário com navegação + ondas de adoção
 │   ├── stress-full.js              # Sobe o servidor e executa o teste simples
+│   ├── fila-status.js              # Visão da fila de notificações (npm run fila)
 │   └── lib/
 │       └── relatorio.js            # Estatísticas e geração dos relatórios
 └── src/
@@ -101,7 +133,7 @@ backend/
     ├── config/
     │   └── db.js                   # Conexão com o PostgreSQL
     ├── controllers/
-    │   └── animaisController.js    # Lógica de negócio
+    │   └── animaisController.js    # Lógica de negócio (produz jobs na fila ao adotar)
     └── routes/
         └── animais.js              # Definição das rotas
 ```
@@ -179,9 +211,77 @@ Corpo da requisição:
 
 | Situação                          | Status | Resposta |
 |-----------------------------------|--------|----------|
-| Adoção bem-sucedida               | `200`  | `{ "sucesso": true, "mensagem": "Adoção realizada", "usuarioId": "user-1", "animalId": 1, "nome": "Thor" }` |
+| Adoção bem-sucedida               | `200`  | `{ "sucesso": true, "mensagem": "Adoção realizada", "usuarioId": "user-1", "animalId": 1, "nome": "Thor", "jobId": 7 }` |
 | Animal já adotado                 | `409`  | `{ "sucesso": false, "motivo": "Animal já foi adotado" }` |
 | Animal não encontrado             | `404`  | `{ "sucesso": false, "motivo": "Animal não encontrado" }` |
+
+O campo `jobId` identifica o job de notificação **enfileirado** pela adoção —
+ele é processado depois, em background, pelo worker (ver próxima seção).
+
+---
+
+## Paralelismo: fila + worker
+
+A adoção responde ao usuário imediatamente, mas o trabalho "pesado" (envio do
+e-mail de confirmação ao adotante) **não acontece dentro da requisição**: ele é
+processado em background por outro processo. O fluxo é produtor → fila →
+consumidor:
+
+```
+POST /:id/adotar ──► UPDATE atômico (trava de linha) ──► INSERT na fila ──► resposta 200
+                                                              │
+                                                              ▼  (depois, em outro processo)
+                                            worker.js: SELECT ... FOR UPDATE SKIP LOCKED
+                                                       processa o job (e-mail simulado)
+                                                       marca como concluído ('C')
+```
+
+- **Fila** — tabela `fila_notificacoes` (`create-table.sql`): cada job tem
+  `tipo`, `payload` (JSONB), `status` (`P` pendente / `C` concluído / `E` erro),
+  e registra **qual worker** o processou e **quando**.
+- **Produtor** — `adotar` em `backend/src/controllers/animaisController.js`:
+  após o `UPDATE` vencedor, insere o job e devolve o `jobId` na resposta. O
+  enfileiramento é melhor-esforço: a adoção nunca falha por causa da fila.
+- **Consumidor** — `backend/worker.js`: loop que pega 1 job pendente por vez com
+  `FOR UPDATE SKIP LOCKED` **dentro de uma transação**. Se o worker morrer no
+  meio de um job, o rollback devolve o job à fila automaticamente — nenhum
+  trabalho se perde. `Ctrl+C` encerra de forma graciosa (termina o job atual).
+
+### Por que `FOR UPDATE SKIP LOCKED`?
+
+É o que torna o consumo **paralelo e seguro**: cada worker trava a linha do job
+que pegou; os demais workers **pulam** as linhas travadas em vez de esperar.
+Resultado: N workers consomem a mesma fila simultaneamente e cada job é entregue
+a exatamente um worker — sem duplicação e sem coordenação extra. É a mesma
+primitiva de trava de linha que garante o RF014 na adoção.
+
+### Como demonstrar
+
+```bash
+# Terminal 1 — API
+npm start
+
+# Terminais 2 e 3 — dois workers em paralelo
+WORKER_ID=worker-A npm run worker
+WORKER_ID=worker-B npm run worker
+
+# Terminal 4 — gere adoções e observe os workers dividirem os jobs
+npm run stress:cenario
+
+# Visão da fila a qualquer momento (resumo + últimos jobs):
+npm run fila
+```
+
+Demonstração de **independência da requisição principal**: derrube os workers
+(`Ctrl+C`), faça adoções (a API segue respondendo `200` normalmente e os jobs
+acumulam como `P` — visível no `npm run fila`), suba o worker de novo e veja a
+fila ser drenada.
+
+| Variável do worker | Padrão            | Descrição                                   |
+|--------------------|-------------------|---------------------------------------------|
+| `WORKER_ID`        | `worker-<pid>`    | Nome do worker nos logs e na fila.           |
+| `TRABALHO_MS`      | `1500`            | Duração simulada do processamento de 1 job.  |
+| `POLL_MS`          | `1000`            | Intervalo de checagem quando a fila está vazia. |
 
 ---
 
@@ -202,6 +302,12 @@ animal, garantindo que apenas **uma** adoção seja bem-sucedida por animal.
 
 Cada execução gera um conjunto de artefatos em
 `backend/out/<script>-<timestamp>/` (detalhado em [Artefatos gerados](#artefatos-gerados)).
+
+Além do RF014, os testes também **evidenciam o paralelismo**: ao final, mostram
+o(s) job(s) de notificação enfileirado(s) pelas adoções vencedoras e acompanham
+o processamento em background — informando qual worker processou cada job e
+quanto tempo depois da resposta HTTP (com o worker no ar: `npm run worker`).
+Essa evidência não altera o veredito do RF014.
 
 ### Pré-requisitos
 
@@ -245,7 +351,7 @@ Variáveis:
 
 | Variável       | Padrão                  | Descrição                          |
 |----------------|-------------------------|------------------------------------|
-| `ANIMAL_ID`    | `1`                     | ID do animal disputado.            |
+| `ANIMAL_ID`    | primeiro disponível     | ID do animal disputado. Sem informar, o teste escolhe sozinho o primeiro animal com `status = 'D'`. |
 | `NUM_USUARIOS` | `3`                     | Quantidade de usuários paralelos.  |
 | `BASE_URL`     | `http://localhost:3001` | URL base da API.                   |
 

@@ -139,6 +139,8 @@ async function adotarOnda(petId, petNome, usuariosIds, sessao, contador) {
         recebidoEm: corpo.recebidoEm != null ? corpo.recebidoEm - sessao.inicioMs : null,
         ordemChegada: corpo.ordemChegada != null ? corpo.ordemChegada : null,
         dbMs: corpo.dbMs != null ? corpo.dbMs : null,
+        // Job de notificação enfileirado pela adoção vencedora (fila + worker).
+        jobId: corpo.jobId != null ? corpo.jobId : null,
       });
       if (res.status === 200) contador.adSucesso++;
       else if (res.status === 409) contador.adConflito++;
@@ -382,6 +384,57 @@ async function main() {
   }
   console.log('  Causa em 1 frase: o 1º UPDATE a pegar a TRAVA DE LINHA no Postgres vence; os demais viram 409.');
 
+  // ---- Evidência de PARALELISMO (fila + worker) ----
+  // Cada adoção vencedora enfileirou um job de notificação; o worker (processo
+  // separado) consome a fila em background. Com 2+ workers de pé, os jobs saem
+  // distribuídos entre eles sem duplicar (FOR UPDATE SKIP LOCKED).
+  const jobsIds = adEventos.filter((e) => e.status === 200 && e.jobId != null).map((e) => e.jobId);
+  let filaResumo = 'sem jobs';
+  if (jobsIds.length > 0) {
+    console.log('');
+    console.log('=== PARALELISMO (fila + worker): notificações em background ===');
+    console.log(`As ${jobsIds.length} adoções vencedoras enfileiraram jobs; as respostas HTTP já voltaram.`);
+    // A fila é FIFO: jobs pendentes mais antigos saem antes dos desta rodada.
+    // A janela de espera cresce com o backlog para não acusar o worker à toa.
+    const { rows: backlogRows } = await pool.query(
+      "SELECT count(*)::int AS n FROM fila_notificacoes WHERE status = 'P' AND id < $1",
+      [Math.min(...jobsIds)]
+    );
+    const backlog = backlogRows[0].n;
+    const maxIter = 24 + backlog * 4;
+    const iterSemProgresso = 6 + backlog * 3;
+    let jobsRows = [];
+    for (let i = 0; i < maxIter; i++) {
+      ({ rows: jobsRows } = await pool.query(
+        `SELECT id, payload->>'nome' AS pet, status, processado_por,
+                round(EXTRACT(EPOCH FROM (processado_em - criado_em))::numeric, 1) AS seg
+           FROM fila_notificacoes WHERE id = ANY($1::int[]) ORDER BY id`,
+        [jobsIds]
+      ));
+      const concluidos = jobsRows.filter((r) => r.status === 'C').length;
+      process.stdout.write(`\r  aguardando workers: ${concluidos}/${jobsIds.length} jobs concluídos...   `);
+      if (concluidos === jobsIds.length) break;
+      // Sem nenhum job desta rodada concluído após a tolerância, não deve haver worker de pé.
+      if (i >= iterSemProgresso && concluidos === 0) break;
+      await sleep(500);
+    }
+    process.stdout.write('\n');
+    for (const r of jobsRows) {
+      const quem =
+        r.status === 'C'
+          ? `processado por "${r.processado_por}" ${r.seg}s após a adoção`
+          : 'PENDENTE — worker ocupado ou fora do ar (confira: npm run fila | suba: npm run worker)';
+      console.log(`  • job #${r.id} (${r.pet}): ${quem}`);
+    }
+    const concluidos = jobsRows.filter((r) => r.status === 'C').length;
+    const workers = [...new Set(jobsRows.filter((r) => r.processado_por).map((r) => r.processado_por))];
+    filaResumo = `${concluidos}/${jobsIds.length} jobs por ${workers.length} worker(s)`;
+    if (workers.length > 1) {
+      console.log(`  ⚡ Jobs distribuídos entre ${workers.length} workers em PARALELO (${workers.join(', ')}),`);
+      console.log('     nenhum job duplicado — é o FOR UPDATE SKIP LOCKED entregando cada job a um único worker.');
+    }
+  }
+
   sessao.salvar({
     nome: `Teste de cenário — perfil ${PERFIL}`,
     descricao: `${cfg.navegacao.usuarios} usuários navegando + ${ondas.length} ondas de adoção paralelas (${totalAdocao} adotantes).`,
@@ -401,6 +454,7 @@ async function main() {
       { label: 'Nav p95', valor: `${statsNav.p95}ms`, dica: '95% das navegações responderam em até esse tempo.' },
       { label: 'Nav p99', valor: `${statsNav.p99}ms`, dica: 'Quase pior caso da navegação.' },
       { label: 'PG pool max', valor: String(pool.options.max), dica: 'Conexões simultâneas no Postgres. Acima disso, os pedidos fazem fila.' },
+      { label: 'Fila (background)', valor: filaResumo, dica: 'Jobs de notificação enfileirados pelas adoções e processados pelo(s) worker(s) em processo separado (fila + worker).' },
     ],
     veredito: { ok: passouRF014, mensagem: mensagemVer },
     estatisticas: { navegacao: statsNav, adocao: statsAd },

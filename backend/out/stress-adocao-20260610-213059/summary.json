@@ -1,0 +1,83 @@
+{
+  "nome": "Teste de adoção concorrente (RF014)",
+  "descricao": "8 usuários tentando adotar o animal 29 (Frida) ao mesmo tempo.",
+  "inicioISO": "2026-06-11T00:30:59.208Z",
+  "config": {
+    "ANIMAL_ID": 29,
+    "NUM_USUARIOS": 8,
+    "BASE_URL": "http://localhost:3001"
+  },
+  "cards": [
+    {
+      "label": "Animal alvo",
+      "valor": "29 — Frida",
+      "dica": "Pet que todos tentaram adotar ao mesmo tempo."
+    },
+    {
+      "label": "Usuários",
+      "valor": "8",
+      "dica": "Quantas pessoas dispararam a adoção em paralelo."
+    },
+    {
+      "label": "Sucessos",
+      "valor": "1",
+      "sub": "esperado: 1",
+      "dica": "Deve ser exatamente 1. Mais que isso = bug de concorrência (RF014 violado)."
+    },
+    {
+      "label": "Conflitos (409)",
+      "valor": "7",
+      "dica": "Quem chegou tarde: o pet já era I. Comportamento correto dos perdedores."
+    },
+    {
+      "label": "Erros",
+      "valor": "0",
+      "dica": "Respostas inesperadas (5xx, rede). Deveria ser 0."
+    },
+    {
+      "label": "Tempo total",
+      "valor": "73ms",
+      "dica": "Do disparo até a última resposta chegar."
+    },
+    {
+      "label": "Latência p50",
+      "valor": "47ms",
+      "dica": "Mediana: metade das adoções respondeu mais rápido que isso."
+    },
+    {
+      "label": "Latência p95",
+      "valor": "62ms",
+      "dica": "95% das adoções responderam em até esse tempo (interpolação linear)."
+    },
+    {
+      "label": "Status final",
+      "valor": "I",
+      "dica": "Status do pet no banco ao fim: I = adotado (esperado)."
+    },
+    {
+      "label": "Vencedor",
+      "valor": "user-1",
+      "dica": "Usuário cujo UPDATE pegou a trava de linha primeiro."
+    },
+    {
+      "label": "Fila (background)",
+      "valor": "job #1 → worker-A",
+      "dica": "Job de notificação enfileirado pela adoção e processado pelo worker em outro processo (fila + worker)."
+    }
+  ],
+  "veredito": {
+    "ok": true,
+    "mensagem": "✅ Teste PASSOU: exatamente 1 usuário conseguiu adotar."
+  },
+  "estatisticas": {
+    "adocao": {
+      "count": 8,
+      "min": 46,
+      "p50": 47,
+      "p95": 62,
+      "p99": 67,
+      "max": 68,
+      "media": 50
+    }
+  }
+}

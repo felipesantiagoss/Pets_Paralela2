@@ -129,12 +129,28 @@ async function adotar(req, res) {
     const dbMs = Date.now() - t0;
 
     if (rowCount === 1) {
+      // Adoção confirmada → enfileira a notificação para o worker processar em
+      // BACKGROUND (fila + worker). A resposta HTTP não espera o processamento:
+      // aqui só se registra o job; quem o executa é outro processo (worker.js).
+      // Melhor esforço: a adoção (dado mestre) nunca falha por causa da fila.
+      let jobId = null;
+      try {
+        const fila = await pool.query(
+          "INSERT INTO fila_notificacoes (tipo, payload) VALUES ('adocao_confirmada', $1) RETURNING id",
+          [JSON.stringify({ animalId: rows[0].id, nome: rows[0].nome, usuarioId })]
+        );
+        jobId = fila.rows[0].id;
+      } catch (err) {
+        console.error(`Falha ao enfileirar notificação da adoção ${rows[0].id}: ${err.message}`);
+      }
+
       return res.json({
         sucesso: true,
         mensagem: 'Adoção realizada',
         usuarioId,
         animalId: rows[0].id,
         nome: rows[0].nome,
+        jobId,
         recebidoEm,
         ordemChegada,
         dbMs,

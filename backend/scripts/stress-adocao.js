@@ -1,7 +1,9 @@
 const pool = require('../src/config/db');
 const { criarSessao, estatisticas } = require('./lib/relatorio');
 
-const ANIMAL_ID = parseInt(process.env.ANIMAL_ID || '1', 10);
+// Sem ANIMAL_ID na env, o teste escolhe sozinho o primeiro animal disponível
+// (status 'D') — evita disparar a corrida contra um animal já adotado.
+let ANIMAL_ID = process.env.ANIMAL_ID ? parseInt(process.env.ANIMAL_ID, 10) : null;
 const NUM_USUARIOS = parseInt(process.env.NUM_USUARIOS || '3', 10);
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3001';
 
@@ -32,6 +34,8 @@ async function adotar(usuarioId, sessao) {
       recebidoEm: corpo.recebidoEm != null ? corpo.recebidoEm - sessao.inicioMs : null,
       ordemChegada: corpo.ordemChegada != null ? corpo.ordemChegada : null,
       dbMs: corpo.dbMs != null ? corpo.dbMs : null,
+      // Job de notificação enfileirado pela adoção vencedora (fila + worker).
+      jobId: corpo.jobId != null ? corpo.jobId : null,
     };
     sessao.log(ev);
     return ev;
@@ -59,6 +63,22 @@ async function main() {
   let statusInicial;
   let nomeAnimal;
   try {
+    if (ANIMAL_ID == null) {
+      const { rows: disponiveis } = await pool.query(
+        "SELECT id FROM animais WHERE status = 'D' ORDER BY id LIMIT 1"
+      );
+      if (disponiveis.length === 0) {
+        console.error(
+          "Nenhum animal disponível (status 'D'). Reative alguns: UPDATE animais SET status='D' WHERE id IN (1,2,3,4,5);"
+        );
+        await sessao.fechar();
+        await pool.end();
+        process.exit(1);
+      }
+      ANIMAL_ID = disponiveis[0].id;
+      console.log(`ANIMAL_ID não informado — usando o primeiro disponível: ${ANIMAL_ID}`);
+    }
+
     const { rows } = await pool.query('SELECT nome, status FROM animais WHERE id = $1', [ANIMAL_ID]);
     if (rows.length === 0) {
       console.error(`Animal id=${ANIMAL_ID} não existe no banco. Abortando.`);
@@ -187,6 +207,49 @@ async function main() {
   }
   console.log(mensagemVeredito);
 
+  // ---- Evidência de PARALELISMO (fila + worker) ----
+  // A adoção vencedora enfileirou um job em fila_notificacoes e a resposta HTTP
+  // voltou na hora; quem processa é o worker (outro processo), em background.
+  // Aqui o teste acompanha o job até o worker concluí-lo.
+  let filaEvidencia = '—';
+  if (sucessos.length === 1 && sucessos[0].jobId != null) {
+    const jobId = sucessos[0].jobId;
+    console.log('');
+    console.log('📨 PARALELISMO (fila + worker):');
+    console.log(`   A adoção vencedora enfileirou o job #${jobId} e a resposta HTTP voltou na hora.`);
+    console.log('   O processamento acontece em BACKGROUND, no worker (processo separado).');
+    // A fila é FIFO: jobs pendentes mais antigos são processados antes do nosso.
+    // A janela de espera cresce com o backlog para não acusar o worker à toa.
+    const { rows: backlogRows } = await pool.query(
+      "SELECT count(*)::int AS n FROM fila_notificacoes WHERE status = 'P' AND id < $1",
+      [jobId]
+    );
+    const backlog = backlogRows[0].n;
+    const maxTentativas = 8 + backlog * 4;
+    let job = null;
+    for (let i = 0; i < maxTentativas; i++) {
+      const { rows } = await pool.query(
+        `SELECT status, processado_por,
+                round(EXTRACT(EPOCH FROM (processado_em - criado_em))::numeric, 1) AS seg
+           FROM fila_notificacoes WHERE id = $1`,
+        [jobId]
+      );
+      job = rows[0];
+      if (job && job.status === 'C') break;
+      await new Promise((r) => setTimeout(r, 500));
+    }
+    if (job && job.status === 'C') {
+      console.log(`   ✅ Job #${jobId} processado por "${job.processado_por}" ${job.seg}s DEPOIS da adoção —`);
+      console.log('      execução independente da requisição principal.');
+      filaEvidencia = `job #${jobId} → ${job.processado_por}`;
+    } else {
+      const naFrente = backlog > 0 ? ` (${backlog} job(s) na frente na fila)` : '';
+      console.log(`   ⏳ Job #${jobId} segue pendente${naFrente} — worker ocupado ou fora do ar.`);
+      console.log('      Confira a fila: npm run fila   |   suba um worker: npm run worker');
+      filaEvidencia = `job #${jobId} pendente`;
+    }
+  }
+
   const statsLatencia = estatisticas(resultados.map((r) => r.latencia));
 
   sessao.salvar({
@@ -205,6 +268,7 @@ async function main() {
       { label: 'Latência p95', valor: `${statsLatencia.p95}ms`, dica: '95% das adoções responderam em até esse tempo (interpolação linear).' },
       { label: 'Status final', valor: statusFinal, dica: "Status do pet no banco ao fim: I = adotado (esperado)." },
       { label: 'Vencedor', valor: vencedor, dica: 'Usuário cujo UPDATE pegou a trava de linha primeiro.' },
+      { label: 'Fila (background)', valor: filaEvidencia, dica: 'Job de notificação enfileirado pela adoção e processado pelo worker em outro processo (fila + worker).' },
     ],
     veredito: { ok: passou, mensagem: mensagemVeredito },
     estatisticas: { adocao: statsLatencia },
