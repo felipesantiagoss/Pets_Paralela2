@@ -4,3 +4,7 @@ node_modules/
 
 # Relatorio em PDF (gerado localmente, nao versionado)
 *.pdf
+
+# Resultados dos testes de estresse (gerados localmente, nao versionados)
+out/
+backend/out/

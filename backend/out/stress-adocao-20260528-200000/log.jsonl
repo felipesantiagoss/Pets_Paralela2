@@ -1,5 +1,0 @@
-{"tAbs":1780009200886,"tipo":"request","acao":"adotar","usuarioId":"user-5","petId":23,"nome":"Pandora","enviadoEm":70,"respondidoEm":108,"latencia":38,"status":200,"motivo":"Adoção realizada"}
-{"tAbs":1780009200886,"tipo":"request","acao":"adotar","usuarioId":"user-4","petId":23,"enviadoEm":70,"respondidoEm":108,"latencia":38,"status":409,"motivo":"Animal já foi adotado"}
-{"tAbs":1780009200886,"tipo":"request","acao":"adotar","usuarioId":"user-3","petId":23,"enviadoEm":69,"respondidoEm":108,"latencia":39,"status":409,"motivo":"Animal já foi adotado"}
-{"tAbs":1780009200887,"tipo":"request","acao":"adotar","usuarioId":"user-1","petId":23,"enviadoEm":44,"respondidoEm":109,"latencia":65,"status":409,"motivo":"Animal já foi adotado"}
-{"tAbs":1780009200887,"tipo":"request","acao":"adotar","usuarioId":"user-2","petId":23,"enviadoEm":69,"respondidoEm":109,"latencia":40,"status":409,"motivo":"Animal já foi adotado"}
