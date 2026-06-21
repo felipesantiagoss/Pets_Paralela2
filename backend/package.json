@@ -7,6 +7,7 @@
     "dev": "nodemon server.js",
     "worker": "node worker.js",
     "fila": "node scripts/fila-status.js",
+    "trava": "node scripts/demo-trava.js",
     "stress": "node scripts/stress-adocao.js",
     "stress:full": "node scripts/stress-full.js",
     "stress:cenario": "node scripts/stress-cenario.js",
